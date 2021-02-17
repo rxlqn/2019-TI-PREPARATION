@@ -1,0 +1,2062 @@
+L 1 "..\..\User\RTT\SEGGER_RTT_printf.c"
+N/*********************************************************************
+N*               SEGGER MICROCONTROLLER GmbH & Co. KG                 *
+N*       Solutions for real time microcontroller applications         *
+N**********************************************************************
+N*                                                                    *
+N*       (c) 2014 - 2016  SEGGER Microcontroller GmbH & Co. KG        *
+N*                                                                    *
+N*       www.segger.com     Support: support@segger.com               *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SEGGER RTT * Real Time Transfer for embedded targets         *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N* All rights reserved.                                               *
+N*                                                                    *
+N* * This software may in its unmodified form be freely redistributed *
+N*   in source form.                                                  *
+N* * The source code may be modified, provided the source code        *
+N*   retains the above copyright notice, this list of conditions and  *
+N*   the following disclaimer.                                        *
+N* * Modified versions of this software in source or linkable form    *
+N*   may not be distributed without prior consent of SEGGER.          *
+N* * This software may only be used for communication with SEGGER     *
+N*   J-Link debug probes.                                             *
+N*                                                                    *
+N* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+N* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+N* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+N* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+N* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+N* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+N* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+N* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+N* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+N* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+N* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+N* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+N* DAMAGE.                                                            *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       RTT version: 5.10u                                           *
+N*                                                                    *
+N**********************************************************************
+N---------------------------END-OF-HEADER------------------------------
+NFile    : SEGGER_RTT_printf.c
+NPurpose : Replacement for printf to write formatted data via RTT
+N----------------------------------------------------------------------
+N*/
+N#include "SEGGER_RTT.h"
+L 1 "..\..\User\RTT\SEGGER_RTT.h" 1
+N/*********************************************************************
+N*               SEGGER MICROCONTROLLER GmbH & Co. KG                 *
+N*       Solutions for real time microcontroller applications         *
+N**********************************************************************
+N*                                                                    *
+N*       (c) 2014 - 2016  SEGGER Microcontroller GmbH & Co. KG        *
+N*                                                                    *
+N*       www.segger.com     Support: support@segger.com               *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SEGGER RTT * Real Time Transfer for embedded targets         *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N* All rights reserved.                                               *
+N*                                                                    *
+N* * This software may in its unmodified form be freely redistributed *
+N*   in source form.                                                  *
+N* * The source code may be modified, provided the source code        *
+N*   retains the above copyright notice, this list of conditions and  *
+N*   the following disclaimer.                                        *
+N* * Modified versions of this software in source or linkable form    *
+N*   may not be distributed without prior consent of SEGGER.          *
+N* * This software may only be used for communication with SEGGER     *
+N*   J-Link debug probes.                                             *
+N*                                                                    *
+N* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+N* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+N* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+N* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+N* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+N* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+N* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+N* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+N* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+N* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+N* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+N* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+N* DAMAGE.                                                            *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       RTT version: 5.10u                                           *
+N*                                                                    *
+N**********************************************************************
+N---------------------------END-OF-HEADER------------------------------
+NFile    : SEGGER_RTT.h
+NPurpose : Implementation of SEGGER real-time transfer which allows
+N          real-time communication on targets which support debugger 
+N          memory accesses while the CPU is running.
+N----------------------------------------------------------------------
+N*/
+N
+N#ifndef SEGGER_RTT_H
+N#define SEGGER_RTT_H
+N
+N#include "SEGGER_RTT_Conf.h"
+L 1 "..\..\User\RTT\SEGGER_RTT_Conf.h" 1
+N/*********************************************************************
+N*               SEGGER MICROCONTROLLER GmbH & Co. KG                 *
+N*       Solutions for real time microcontroller applications         *
+N**********************************************************************
+N*                                                                    *
+N*       (c) 2014 - 2016  SEGGER Microcontroller GmbH & Co. KG        *
+N*                                                                    *
+N*       www.segger.com     Support: support@segger.com               *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SEGGER RTT * Real Time Transfer for embedded targets         *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N* All rights reserved.                                               *
+N*                                                                    *
+N* * This software may in its unmodified form be freely redistributed *
+N*   in source form.                                                  *
+N* * The source code may be modified, provided the source code        *
+N*   retains the above copyright notice, this list of conditions and  *
+N*   the following disclaimer.                                        *
+N* * Modified versions of this software in source or linkable form    *
+N*   may not be distributed without prior consent of SEGGER.          *
+N* * This software may only be used for communication with SEGGER     *
+N*   J-Link debug probes.                                             *
+N*                                                                    *
+N* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+N* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+N* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+N* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+N* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+N* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+N* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+N* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+N* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+N* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+N* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+N* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+N* DAMAGE.                                                            *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       RTT version: 5.10u                                           *
+N*                                                                    *
+N**********************************************************************
+N----------------------------------------------------------------------
+NFile    : SEGGER_RTT_Conf.h
+NPurpose : Implementation of SEGGER real-time transfer (RTT) which 
+N          allows real-time communication on targets which support 
+N          debugger memory accesses while the CPU is running.
+N---------------------------END-OF-HEADER------------------------------
+N*/
+N
+N#ifndef SEGGER_RTT_CONF_H
+N#define SEGGER_RTT_CONF_H
+N
+N#ifdef __ICCARM__
+S  #include <intrinsics.h>
+N#endif
+N
+N/*********************************************************************
+N*
+N*       Defines, configurable
+N*
+N**********************************************************************
+N*/
+N
+N#define SEGGER_RTT_MAX_NUM_UP_BUFFERS             (2)     // Max. number of up-buffers (T->H) available on this target    (Default: 2)
+N#define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS           (2)     // Max. number of down-buffers (H->T) available on this target  (Default: 2)
+N
+N#define BUFFER_SIZE_UP                            (1024)  // Size of the buffer for terminal output of target, up to host (Default: 1k)
+N#define BUFFER_SIZE_DOWN                          (16)    // Size of the buffer for terminal input to target from host (Usually keyboard input) (Default: 16)
+N
+N#define SEGGER_RTT_PRINTF_BUFFER_SIZE             (64u)    // Size of buffer for RTT printf to bulk-send chars via RTT     (Default: 64)
+N
+N#define SEGGER_RTT_MODE_DEFAULT                   SEGGER_RTT_MODE_NO_BLOCK_SKIP // Mode for pre-initialized terminal channel (buffer 0)
+N
+N//
+N// Target is not allowed to perform other RTT operations while string still has not been stored completely.
+N// Otherwise we would probably end up with a mixed string in the buffer.
+N// If using  RTT from within interrupts, multiple tasks or multi processors, define the SEGGER_RTT_LOCK() and SEGGER_RTT_UNLOCK() function here.
+N//
+N/*********************************************************************
+N*
+N*       RTT lock configuration for SEGGER Embedded Studio, 
+N*       Rowley CrossStudio and GCC
+N*/
+N#if (defined __SES_ARM) || (defined __CROSSWORKS_ARM) || (defined __GNUC__)
+X#if (0L) || (0L) || (0L)
+S  #ifdef __ARM_ARCH_6M__
+S    #define SEGGER_RTT_LOCK() {                                                 \
+S                                    unsigned int LockState;                     \
+S                                  __asm volatile ("mrs   %0, primask  \n\t"     \
+S                                                  "mov   r1, $1     \n\t"       \
+S                                                  "msr   primask, r1  \n\t"     \
+S                                                  : "=r" (LockState)            \
+S                                                  :                             \
+S                                                  : "r1"                        \
+S                                                  );                            
+X    #define SEGGER_RTT_LOCK() {                                                                                     unsigned int LockState;                                                       __asm volatile ("mrs   %0, primask  \n\t"                                                       "mov   r1, $1     \n\t"                                                         "msr   primask, r1  \n\t"                                                       : "=r" (LockState)                                                              :                                                                               : "r1"                                                                          );                            
+S    
+S    #define SEGGER_RTT_UNLOCK()   __asm volatile ("msr   primask, %0  \n\t"     \
+S                                                  :                             \
+S                                                  : "r" (LockState)             \
+S                                                  :                             \
+S                                                  );                            \
+S                                  }                                             
+X    #define SEGGER_RTT_UNLOCK()   __asm volatile ("msr   primask, %0  \n\t"                                                       :                                                                               : "r" (LockState)                                                               :                                                                               );                                                              }                                             
+S                                  
+S  #elif (defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__))
+S    #define SEGGER_RTT_LOCK() {                                                 \
+S                                    unsigned int LockState;                     \
+S                                  __asm volatile ("mrs   %0, basepri  \n\t"     \
+S                                                  "mov   r1, $128     \n\t"     \
+S                                                  "msr   basepri, r1  \n\t"     \
+S                                                  : "=r" (LockState)            \
+S                                                  :                             \
+S                                                  : "r1"                        \
+S                                                  );                            
+X    #define SEGGER_RTT_LOCK() {                                                                                     unsigned int LockState;                                                       __asm volatile ("mrs   %0, basepri  \n\t"                                                       "mov   r1, $128     \n\t"                                                       "msr   basepri, r1  \n\t"                                                       : "=r" (LockState)                                                              :                                                                               : "r1"                                                                          );                            
+S    
+S    #define SEGGER_RTT_UNLOCK()   __asm volatile ("msr   basepri, %0  \n\t"     \
+S                                                  :                             \
+S                                                  : "r" (LockState)             \
+S                                                  :                             \
+S                                                  );                            \
+S                                  }
+X    #define SEGGER_RTT_UNLOCK()   __asm volatile ("msr   basepri, %0  \n\t"                                                       :                                                                               : "r" (LockState)                                                               :                                                                               );                                                              }
+S  #else
+S    #define SEGGER_RTT_LOCK()  
+S    #define SEGGER_RTT_UNLOCK()
+S  #endif
+N#endif
+N
+N/*********************************************************************
+N*
+N*       RTT lock configuration for IAR EWARM
+N*/
+N#ifdef __ICCARM__
+S  #if (defined (__ARM6M__) && (__CORE__ == __ARM6M__))
+S    #define SEGGER_RTT_LOCK() {                                                 \
+S                                    unsigned int LockState;                     \
+S                                    LockState = __get_PRIMASK();                \
+S                                    __set_PRIMASK(1);                           
+X    #define SEGGER_RTT_LOCK() {                                                                                     unsigned int LockState;                                                         LockState = __get_PRIMASK();                                                    __set_PRIMASK(1);                           
+S                                    
+S    #define SEGGER_RTT_UNLOCK() __set_PRIMASK(LockState);                       \
+S                                  }
+X    #define SEGGER_RTT_UNLOCK() __set_PRIMASK(LockState);                                                         }
+S  #elif ((defined (__ARM7EM__) && (__CORE__ == __ARM7EM__)) || (defined (__ARM7M__) && (__CORE__ == __ARM7M__)))
+S    #define SEGGER_RTT_LOCK() {                                                 \
+S                                    unsigned int LockState;                     \
+S                                    LockState = __get_BASEPRI();                \
+S                                    __set_BASEPRI(128);                           
+X    #define SEGGER_RTT_LOCK() {                                                                                     unsigned int LockState;                                                         LockState = __get_BASEPRI();                                                    __set_BASEPRI(128);                           
+S                                    
+S    #define SEGGER_RTT_UNLOCK() __set_BASEPRI(LockState);                       \
+S                                  }  
+X    #define SEGGER_RTT_UNLOCK() __set_BASEPRI(LockState);                                                         }  
+S  #endif
+N#endif
+N
+N/*********************************************************************
+N*
+N*       RTT lock configuration fallback
+N*/
+N#ifndef   SEGGER_RTT_LOCK
+N  #define SEGGER_RTT_LOCK()                // Lock RTT (nestable)   (i.e. disable interrupts)
+N#endif
+N
+N#ifndef   SEGGER_RTT_UNLOCK
+N  #define SEGGER_RTT_UNLOCK()              // Unlock RTT (nestable) (i.e. enable previous interrupt lock state)
+N#endif
+N
+N#endif
+N/*************************** End of file ****************************/
+L 59 "..\..\User\RTT\SEGGER_RTT.h" 2
+N
+N/*********************************************************************
+N*
+N*       Defines, fixed
+N*
+N**********************************************************************
+N*/
+N
+N/*********************************************************************
+N*
+N*       Types
+N*
+N**********************************************************************
+N*/
+N
+N//
+N// Description for a circular buffer (also called "ring buffer")
+N// which is used as up-buffer (T->H)
+N//
+Ntypedef struct {
+N  const     char*    sName;         // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
+N            char*    pBuffer;       // Pointer to start of buffer
+N            unsigned SizeOfBuffer;  // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
+N            unsigned WrOff;         // Position of next item to be written by either target.
+N  volatile  unsigned RdOff;         // Position of next item to be read by host. Must be volatile since it may be modified by host.
+N            unsigned Flags;         // Contains configuration flags
+N} SEGGER_RTT_BUFFER_UP;
+N
+N//
+N// Description for a circular buffer (also called "ring buffer")
+N// which is used as down-buffer (H->T)
+N//
+Ntypedef struct {
+N  const     char*    sName;         // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
+N            char*    pBuffer;       // Pointer to start of buffer
+N            unsigned SizeOfBuffer;  // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
+N  volatile  unsigned WrOff;         // Position of next item to be written by host. Must be volatile since it may be modified by host.
+N            unsigned RdOff;         // Position of next item to be read by target (down-buffer).
+N            unsigned Flags;         // Contains configuration flags
+N} SEGGER_RTT_BUFFER_DOWN;
+N
+N//
+N// RTT control block which describes the number of buffers available
+N// as well as the configuration for each buffer
+N//
+N//
+Ntypedef struct {
+N  char                    acID[16];                                 // Initialized to "SEGGER RTT"
+N  int                     MaxNumUpBuffers;                          // Initialized to SEGGER_RTT_MAX_NUM_UP_BUFFERS (type. 2)
+N  int                     MaxNumDownBuffers;                        // Initialized to SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (type. 2)
+N  SEGGER_RTT_BUFFER_UP    aUp[SEGGER_RTT_MAX_NUM_UP_BUFFERS];       // Up buffers, transferring information up from target via debug probe to host
+X  SEGGER_RTT_BUFFER_UP    aUp[(2)];       
+N  SEGGER_RTT_BUFFER_DOWN  aDown[SEGGER_RTT_MAX_NUM_DOWN_BUFFERS];   // Down buffers, transferring information down from host via debug probe to target
+X  SEGGER_RTT_BUFFER_DOWN  aDown[(2)];   
+N} SEGGER_RTT_CB;
+N
+N/*********************************************************************
+N*
+N*       Global data
+N*
+N**********************************************************************
+N*/
+Nextern SEGGER_RTT_CB _SEGGER_RTT;
+N
+N/*********************************************************************
+N*
+N*       RTT API functions
+N*
+N**********************************************************************
+N*/
+N#ifdef __cplusplus
+S  extern "C" {
+N#endif
+Nint          SEGGER_RTT_AllocDownBuffer  (const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
+Nint          SEGGER_RTT_AllocUpBuffer    (const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
+Nint          SEGGER_RTT_ConfigUpBuffer   (unsigned BufferIndex, const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
+Nint          SEGGER_RTT_ConfigDownBuffer (unsigned BufferIndex, const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
+Nint          SEGGER_RTT_GetKey           (void);
+Nunsigned     SEGGER_RTT_HasData          (unsigned BufferIndex);
+Nint          SEGGER_RTT_HasKey           (void);
+Nvoid         SEGGER_RTT_Init             (void);
+Nunsigned     SEGGER_RTT_Read             (unsigned BufferIndex,       void* pBuffer, unsigned BufferSize);
+Nunsigned     SEGGER_RTT_ReadNoLock       (unsigned BufferIndex,       void* pData,   unsigned BufferSize);
+Nint          SEGGER_RTT_SetNameDownBuffer(unsigned BufferIndex, const char* sName);
+Nint          SEGGER_RTT_SetNameUpBuffer  (unsigned BufferIndex, const char* sName);
+Nint          SEGGER_RTT_WaitKey          (void);
+Nunsigned     SEGGER_RTT_Write            (unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
+Nunsigned     SEGGER_RTT_WriteNoLock      (unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
+Nunsigned     SEGGER_RTT_WriteSkipNoLock  (unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
+Nunsigned     SEGGER_RTT_WriteString      (unsigned BufferIndex, const char* s);
+N//
+N// Function macro for performance optimization
+N//
+N#define      SEGGER_RTT_HASDATA(n)       (_SEGGER_RTT.aDown[n].WrOff - _SEGGER_RTT.aDown[n].RdOff)
+N
+N/*********************************************************************
+N*
+N*       RTT "Terminal" API functions
+N*
+N**********************************************************************
+N*/
+Nint     SEGGER_RTT_SetTerminal        (char TerminalId);
+Nint     SEGGER_RTT_TerminalOut        (char TerminalId, const char* s);
+N
+N/*********************************************************************
+N*
+N*       RTT printf functions (require SEGGER_RTT_printf.c)
+N*
+N**********************************************************************
+N*/
+Nint SEGGER_RTT_printf(unsigned BufferIndex, const char * sFormat, ...);
+N
+N#ifdef __cplusplus
+S  }
+N#endif
+N
+N/*********************************************************************
+N*
+N*       Defines
+N*
+N**********************************************************************
+N*/
+N
+N//
+N// Operating modes. Define behavior if buffer is full (not enough space for entire message)
+N//
+N#define SEGGER_RTT_MODE_NO_BLOCK_SKIP         (0U)     // Skip. Do not block, output nothing. (Default)
+N#define SEGGER_RTT_MODE_NO_BLOCK_TRIM         (1U)     // Trim: Do not block, output as much as fits.
+N#define SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL    (2U)     // Block: Wait until there is space in the buffer.
+N#define SEGGER_RTT_MODE_MASK                  (3U)
+N
+N//
+N// Control sequences, based on ANSI.
+N// Can be used to control color, and clear the screen
+N//
+N#define RTT_CTRL_RESET                "[0m"         // Reset to default colors
+N#define RTT_CTRL_CLEAR                "[2J"         // Clear screen, reposition cursor to top left
+N
+N#define RTT_CTRL_TEXT_BLACK           "[2;30m"
+N#define RTT_CTRL_TEXT_RED             "[2;31m"
+N#define RTT_CTRL_TEXT_GREEN           "[2;32m"
+N#define RTT_CTRL_TEXT_YELLOW          "[2;33m"
+N#define RTT_CTRL_TEXT_BLUE            "[2;34m"
+N#define RTT_CTRL_TEXT_MAGENTA         "[2;35m"
+N#define RTT_CTRL_TEXT_CYAN            "[2;36m"
+N#define RTT_CTRL_TEXT_WHITE           "[2;37m"
+N
+N#define RTT_CTRL_TEXT_BRIGHT_BLACK    "[1;30m"
+N#define RTT_CTRL_TEXT_BRIGHT_RED      "[1;31m"
+N#define RTT_CTRL_TEXT_BRIGHT_GREEN    "[1;32m"
+N#define RTT_CTRL_TEXT_BRIGHT_YELLOW   "[1;33m"
+N#define RTT_CTRL_TEXT_BRIGHT_BLUE     "[1;34m"
+N#define RTT_CTRL_TEXT_BRIGHT_MAGENTA  "[1;35m"
+N#define RTT_CTRL_TEXT_BRIGHT_CYAN     "[1;36m"
+N#define RTT_CTRL_TEXT_BRIGHT_WHITE    "[1;37m"
+N
+N#define RTT_CTRL_BG_BLACK             "[24;40m"
+N#define RTT_CTRL_BG_RED               "[24;41m"
+N#define RTT_CTRL_BG_GREEN             "[24;42m"
+N#define RTT_CTRL_BG_YELLOW            "[24;43m"
+N#define RTT_CTRL_BG_BLUE              "[24;44m"
+N#define RTT_CTRL_BG_MAGENTA           "[24;45m"
+N#define RTT_CTRL_BG_CYAN              "[24;46m"
+N#define RTT_CTRL_BG_WHITE             "[24;47m"
+N
+N#define RTT_CTRL_BG_BRIGHT_BLACK      "[4;40m"
+N#define RTT_CTRL_BG_BRIGHT_RED        "[4;41m"
+N#define RTT_CTRL_BG_BRIGHT_GREEN      "[4;42m"
+N#define RTT_CTRL_BG_BRIGHT_YELLOW     "[4;43m"
+N#define RTT_CTRL_BG_BRIGHT_BLUE       "[4;44m"
+N#define RTT_CTRL_BG_BRIGHT_MAGENTA    "[4;45m"
+N#define RTT_CTRL_BG_BRIGHT_CYAN       "[4;46m"
+N#define RTT_CTRL_BG_BRIGHT_WHITE      "[4;47m"
+N
+N
+N#endif
+N
+N/*************************** End of file ****************************/
+L 53 "..\..\User\RTT\SEGGER_RTT_printf.c" 2
+N#include "SEGGER_RTT_Conf.h"
+N
+N/*********************************************************************
+N*
+N*       Defines, configurable
+N*
+N**********************************************************************
+N*/
+N
+N#ifndef SEGGER_RTT_PRINTF_BUFFER_SIZE
+S  #define SEGGER_RTT_PRINTF_BUFFER_SIZE (64)
+N#endif
+N
+N#include <stdlib.h>
+L 1 "C:\Program1\ARM\ARMCC\Bin\..\include\stdlib.h" 1
+N/* stdlib.h: ANSI draft (X3J11 May 88) library header, section 4.10 */
+N/* Copyright (C) Codemist Ltd., 1988-1993.                          */
+N/* Copyright 1991-1998,2014 ARM Limited. All rights reserved.       */
+N/*
+N * RCS $Revision$
+N * Checkin $Date$
+N * Revising $Author: agrant $
+N */
+N 
+N/*
+N * stdlib.h declares four types, several general purpose functions,
+N * and defines several macros.
+N */
+N
+N#ifndef __stdlib_h
+N#define __stdlib_h
+N#define __ARMCLIB_VERSION 5060037
+N
+N#if defined(__clang__) || (defined(__ARMCC_VERSION) && !defined(__STRICT_ANSI__))
+X#if 0L || (1L && !0L)
+N  /* armclang and non-strict armcc allow 'long long' in system headers */
+N  #define __LONGLONG long long
+N#else
+S  /* strict armcc has '__int64' */
+S  #define __LONGLONG __int64
+N#endif
+N
+N#define _ARMABI __declspec(__nothrow)
+N#define _ARMABI_PURE __declspec(__nothrow) __attribute__((const))
+N#define _ARMABI_NORETURN __declspec(__nothrow) __declspec(__noreturn)
+N#define _ARMABI_THROW
+N
+N  #ifndef __STDLIB_DECLS
+N  #define __STDLIB_DECLS
+N
+N  /*
+N   * Some of these declarations are new in C99.  To access them in C++
+N   * you can use -D__USE_C99_STDLIB (or -D__USE_C99ALL).
+N   */
+N  #ifndef __USE_C99_STDLIB
+N    #if defined(__USE_C99_ALL) || (defined(__STDC_VERSION__) && 199901L <= __STDC_VERSION__) || (defined(__cplusplus) && 201103L <= __cplusplus)
+X    #if 0L || (1L && 199901L <= 199409L) || (0L && 201103L <= __cplusplus)
+S      #define __USE_C99_STDLIB 1
+N    #endif
+N  #endif
+N
+N    #undef __CLIBNS
+N
+N    #ifdef __cplusplus
+S      namespace std {
+S          #define __CLIBNS ::std::
+S          extern "C" {
+N    #else
+N      #define __CLIBNS
+N    #endif  /* __cplusplus */
+N
+N#if defined(__cplusplus) || !defined(__STRICT_ANSI__)
+X#if 0L || !0L
+N /* unconditional in C++ and non-strict C for consistency of debug info */
+N  #if __sizeof_ptr == 8
+X  #if 4 == 8
+S    typedef unsigned long size_t;   /* see <stddef.h> */
+N  #else
+N    typedef unsigned int size_t;   /* see <stddef.h> */
+N  #endif
+N#elif !defined(__size_t)
+S  #define __size_t 1
+S  #if __sizeof_ptr == 8
+S    typedef unsigned long size_t;   /* see <stddef.h> */
+S  #else
+S    typedef unsigned int size_t;   /* see <stddef.h> */
+S  #endif
+N#endif
+N
+N#undef NULL
+N#define NULL 0                   /* see <stddef.h> */
+N
+N#ifndef __cplusplus  /* wchar_t is a builtin type for C++ */
+N  #if !defined(__STRICT_ANSI__)
+X  #if !0L
+N   /* unconditional in non-strict C for consistency of debug info */
+N   #if defined(__WCHAR32) || (defined(__ARM_SIZEOF_WCHAR_T) && __ARM_SIZEOF_WCHAR_T == 4)
+X   #if 0L || (0L && __ARM_SIZEOF_WCHAR_T == 4)
+S    typedef unsigned int wchar_t; /* see <stddef.h> */
+N   #else
+N    typedef unsigned short wchar_t; /* see <stddef.h> */
+N   #endif
+N  #elif !defined(__wchar_t)
+S    #define __wchar_t 1
+S   #if defined(__WCHAR32) || (defined(__ARM_SIZEOF_WCHAR_T) && __ARM_SIZEOF_WCHAR_T == 4)
+S    typedef unsigned int wchar_t; /* see <stddef.h> */
+S   #else
+S    typedef unsigned short wchar_t; /* see <stddef.h> */
+S   #endif
+N  #endif
+N#endif
+N
+Ntypedef struct div_t { int quot, rem; } div_t;
+N   /* type of the value returned by the div function. */
+Ntypedef struct ldiv_t { long int quot, rem; } ldiv_t;
+N   /* type of the value returned by the ldiv function. */
+N#if !defined(__STRICT_ANSI__) || __USE_C99_STDLIB
+X#if !0L || __USE_C99_STDLIB
+Ntypedef struct lldiv_t { __LONGLONG quot, rem; } lldiv_t;
+Xtypedef struct lldiv_t { long long quot, rem; } lldiv_t;
+N   /* type of the value returned by the lldiv function. */
+N#endif
+N
+N#ifdef __EXIT_FAILURE
+S#  define EXIT_FAILURE __EXIT_FAILURE
+S   /*
+S    * an integral expression which may be used as an argument to the exit
+S    * function to return unsuccessful termination status to the host
+S    * environment.
+S    */
+N#else
+N#  define EXIT_FAILURE 1  /* unixoid */
+N#endif
+N#define EXIT_SUCCESS 0
+N   /*
+N    * an integral expression which may be used as an argument to the exit
+N    * function to return successful termination status to the host
+N    * environment.
+N    */
+N
+N   /*
+N    * Defining __USE_ANSI_EXAMPLE_RAND at compile time switches to
+N    * the example implementation of rand() and srand() provided in
+N    * the ANSI C standard. This implementation is very poor, but is
+N    * provided for completeness.
+N    */
+N#ifdef __USE_ANSI_EXAMPLE_RAND
+S#define srand _ANSI_srand
+S#define rand _ANSI_rand
+S#define RAND_MAX 0x7fff
+N#else
+N#define RAND_MAX 0x7fffffff
+N#endif
+N   /*
+N    * RAND_MAX: an integral constant expression, the value of which
+N    * is the maximum value returned by the rand function.
+N    */
+Nextern _ARMABI int __aeabi_MB_CUR_MAX(void);
+Xextern __declspec(__nothrow) int __aeabi_MB_CUR_MAX(void);
+N#define MB_CUR_MAX ( __aeabi_MB_CUR_MAX() )
+N   /*
+N    * a positive integer expression whose value is the maximum number of bytes
+N    * in a multibyte character for the extended character set specified by the
+N    * current locale (category LC_CTYPE), and whose value is never greater
+N    * than MB_LEN_MAX.
+N    */
+N
+N   /*
+N    * If the compiler supports signalling nans as per N965 then it
+N    * will define __SUPPORT_SNAN__, in which case a user may define
+N    * _WANT_SNAN in order to obtain a compliant version of the strtod
+N    * family of functions.
+N    */
+N#if defined(__SUPPORT_SNAN__) && defined(_WANT_SNAN)
+X#if 0L && 0L
+S#pragma import(__use_snan)
+N#endif
+N
+Nextern _ARMABI double atof(const char * /*nptr*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) double atof(const char *  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * converts the initial part of the string pointed to by nptr to double
+N    * representation.
+N    * Returns: the converted value.
+N    */
+Nextern _ARMABI int atoi(const char * /*nptr*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) int atoi(const char *  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * converts the initial part of the string pointed to by nptr to int
+N    * representation.
+N    * Returns: the converted value.
+N    */
+Nextern _ARMABI long int atol(const char * /*nptr*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) long int atol(const char *  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * converts the initial part of the string pointed to by nptr to long int
+N    * representation.
+N    * Returns: the converted value.
+N    */
+N#if !defined(__STRICT_ANSI__) || __USE_C99_STDLIB
+X#if !0L || __USE_C99_STDLIB
+Nextern _ARMABI __LONGLONG atoll(const char * /*nptr*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) long long atoll(const char *  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * converts the initial part of the string pointed to by nptr to
+N    * long long int representation.
+N    * Returns: the converted value.
+N    */
+N#endif
+N
+Nextern _ARMABI double strtod(const char * __restrict /*nptr*/, char ** __restrict /*endptr*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) double strtod(const char * __restrict  , char ** __restrict  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * converts the initial part of the string pointed to by nptr to double
+N    * representation. First it decomposes the input string into three parts:
+N    * an initial, possibly empty, sequence of white-space characters (as
+N    * specified by the isspace function), a subject sequence resembling a
+N    * floating point constant; and a final string of one or more unrecognised
+N    * characters, including the terminating null character of the input string.
+N    * Then it attempts to convert the subject sequence to a floating point
+N    * number, and returns the result. A pointer to the final string is stored
+N    * in the object pointed to by endptr, provided that endptr is not a null
+N    * pointer.
+N    * Returns: the converted value if any. If no conversion could be performed,
+N    *          zero is returned. If the correct value is outside the range of
+N    *          representable values, plus or minus HUGE_VAL is returned
+N    *          (according to the sign of the value), and the value of the macro
+N    *          ERANGE is stored in errno. If the correct value would cause
+N    *          underflow, zero is returned and the value of the macro ERANGE is
+N    *          stored in errno.
+N    */
+N#if !defined(__STRICT_ANSI__) || __USE_C99_STDLIB
+X#if !0L || __USE_C99_STDLIB
+Nextern _ARMABI float strtof(const char * __restrict /*nptr*/, char ** __restrict /*endptr*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) float strtof(const char * __restrict  , char ** __restrict  ) __attribute__((__nonnull__(1)));
+Nextern _ARMABI long double strtold(const char * __restrict /*nptr*/, char ** __restrict /*endptr*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) long double strtold(const char * __restrict  , char ** __restrict  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * same as strtod, but return float and long double respectively.
+N    */
+N#endif
+Nextern _ARMABI long int strtol(const char * __restrict /*nptr*/,
+Xextern __declspec(__nothrow) long int strtol(const char * __restrict  ,
+N                        char ** __restrict /*endptr*/, int /*base*/) __attribute__((__nonnull__(1)));
+N   /*
+N    * converts the initial part of the string pointed to by nptr to long int
+N    * representation. First it decomposes the input string into three parts:
+N    * an initial, possibly empty, sequence of white-space characters (as
+N    * specified by the isspace function), a subject sequence resembling an
+N    * integer represented in some radix determined by the value of base, and a
+N    * final string of one or more unrecognised characters, including the
+N    * terminating null character of the input string. Then it attempts to
+N    * convert the subject sequence to an integer, and returns the result.
+N    * If the value of base is 0, the expected form of the subject sequence is
+N    * that of an integer constant (described in ANSI Draft, section 3.1.3.2),
+N    * optionally preceded by a '+' or '-' sign, but not including an integer
+N    * suffix. If the value of base is between 2 and 36, the expected form of
+N    * the subject sequence is a sequence of letters and digits representing an
+N    * integer with the radix specified by base, optionally preceded by a plus
+N    * or minus sign, but not including an integer suffix. The letters from a
+N    * (or A) through z (or Z) are ascribed the values 10 to 35; only letters
+N    * whose ascribed values are less than that of the base are permitted. If
+N    * the value of base is 16, the characters 0x or 0X may optionally precede
+N    * the sequence of letters and digits following the sign if present.
+N    * A pointer to the final string is stored in the object
+N    * pointed to by endptr, provided that endptr is not a null pointer.
+N    * Returns: the converted value if any. If no conversion could be performed,
+N    *          zero is returned and nptr is stored in *endptr.
+N    *          If the correct value is outside the range of
+N    *          representable values, LONG_MAX or LONG_MIN is returned
+N    *          (according to the sign of the value), and the value of the
+N    *          macro ERANGE is stored in errno.
+N    */
+Nextern _ARMABI unsigned long int strtoul(const char * __restrict /*nptr*/,
+Xextern __declspec(__nothrow) unsigned long int strtoul(const char * __restrict  ,
+N                                       char ** __restrict /*endptr*/, int /*base*/) __attribute__((__nonnull__(1)));
+N   /*
+N    * converts the initial part of the string pointed to by nptr to unsigned
+N    * long int representation. First it decomposes the input string into three
+N    * parts: an initial, possibly empty, sequence of white-space characters (as
+N    * determined by the isspace function), a subject sequence resembling an
+N    * unsigned integer represented in some radix determined by the value of
+N    * base, and a final string of one or more unrecognised characters,
+N    * including the terminating null character of the input string. Then it
+N    * attempts to convert the subject sequence to an unsigned integer, and
+N    * returns the result. If the value of base is zero, the expected form of
+N    * the subject sequence is that of an integer constant (described in ANSI
+N    * Draft, section 3.1.3.2), optionally preceded by a '+' or '-' sign, but
+N    * not including an integer suffix. If the value of base is between 2 and
+N    * 36, the expected form of the subject sequence is a sequence of letters
+N    * and digits representing an integer with the radix specified by base,
+N    * optionally preceded by a '+' or '-' sign, but not including an integer
+N    * suffix. The letters from a (or A) through z (or Z) stand for the values
+N    * 10 to 35; only letters whose ascribed values are less than that of the
+N    * base are permitted. If the value of base is 16, the characters 0x or 0X
+N    * may optionally precede the sequence of letters and digits following the
+N    * sign, if present. A pointer to the final string is stored in the object
+N    * pointed to by endptr, provided that endptr is not a null pointer.
+N    * Returns: the converted value if any. If no conversion could be performed,
+N    *          zero is returned and nptr is stored in *endptr.
+N    *          If the correct value is outside the range of
+N    *          representable values, ULONG_MAX is returned, and the value of
+N    *          the macro ERANGE is stored in errno.
+N    */
+N
+N/* C90 reserves all names beginning with 'str' */
+Nextern _ARMABI __LONGLONG strtoll(const char * __restrict /*nptr*/,
+Xextern __declspec(__nothrow) long long strtoll(const char * __restrict  ,
+N                                  char ** __restrict /*endptr*/, int /*base*/)
+N                          __attribute__((__nonnull__(1)));
+N   /*
+N    * as strtol but returns a long long int value.  If the correct value is
+N    * outside the range of representable values,  LLONG_MAX or LLONG_MIN is
+N    * returned (according to the sign of the value), and the value of the
+N    * macro ERANGE is stored in errno.
+N    */
+Nextern _ARMABI unsigned __LONGLONG strtoull(const char * __restrict /*nptr*/,
+Xextern __declspec(__nothrow) unsigned long long strtoull(const char * __restrict  ,
+N                                            char ** __restrict /*endptr*/, int /*base*/)
+N                                   __attribute__((__nonnull__(1)));
+N   /*
+N    * as strtoul but returns an unsigned long long int value.  If the correct
+N    * value is outside the range of representable values, ULLONG_MAX is returned,
+N    * and the value of the macro ERANGE is stored in errno.
+N    */
+N
+Nextern _ARMABI int rand(void);
+Xextern __declspec(__nothrow) int rand(void);
+N   /*
+N    * Computes a sequence of pseudo-random integers in the range 0 to RAND_MAX.
+N    * Uses an additive generator (Mitchell & Moore) of the form:
+N    *   Xn = (X[n-24] + X[n-55]) MOD 2^31
+N    * This is described in section 3.2.2 of Knuth, vol 2. It's period is
+N    * in excess of 2^55 and its randomness properties, though unproven, are
+N    * conjectured to be good. Empirical testing since 1958 has shown no flaws.
+N    * Returns: a pseudo-random integer.
+N    */
+Nextern _ARMABI void srand(unsigned int /*seed*/);
+Xextern __declspec(__nothrow) void srand(unsigned int  );
+N   /*
+N    * uses its argument as a seed for a new sequence of pseudo-random numbers
+N    * to be returned by subsequent calls to rand. If srand is then called with
+N    * the same seed value, the sequence of pseudo-random numbers is repeated.
+N    * If rand is called before any calls to srand have been made, the same
+N    * sequence is generated as when srand is first called with a seed value
+N    * of 1.
+N    */
+N
+Nstruct _rand_state { int __x[57]; };
+Nextern _ARMABI int _rand_r(struct _rand_state *);
+Xextern __declspec(__nothrow) int _rand_r(struct _rand_state *);
+Nextern _ARMABI void _srand_r(struct _rand_state *, unsigned int);
+Xextern __declspec(__nothrow) void _srand_r(struct _rand_state *, unsigned int);
+Nstruct _ANSI_rand_state { int __x[1]; };
+Nextern _ARMABI int _ANSI_rand_r(struct _ANSI_rand_state *);
+Xextern __declspec(__nothrow) int _ANSI_rand_r(struct _ANSI_rand_state *);
+Nextern _ARMABI void _ANSI_srand_r(struct _ANSI_rand_state *, unsigned int);
+Xextern __declspec(__nothrow) void _ANSI_srand_r(struct _ANSI_rand_state *, unsigned int);
+N   /*
+N    * Re-entrant variants of both flavours of rand, which operate on
+N    * an explicitly supplied state buffer.
+N    */
+N
+Nextern _ARMABI void *calloc(size_t /*nmemb*/, size_t /*size*/);
+Xextern __declspec(__nothrow) void *calloc(size_t  , size_t  );
+N   /*
+N    * allocates space for an array of nmemb objects, each of whose size is
+N    * 'size'. The space is initialised to all bits zero.
+N    * Returns: either a null pointer or a pointer to the allocated space.
+N    */
+Nextern _ARMABI void free(void * /*ptr*/);
+Xextern __declspec(__nothrow) void free(void *  );
+N   /*
+N    * causes the space pointed to by ptr to be deallocated (i.e., made
+N    * available for further allocation). If ptr is a null pointer, no action
+N    * occurs. Otherwise, if ptr does not match a pointer earlier returned by
+N    * calloc, malloc or realloc or if the space has been deallocated by a call
+N    * to free or realloc, the behaviour is undefined.
+N    */
+Nextern _ARMABI void *malloc(size_t /*size*/);
+Xextern __declspec(__nothrow) void *malloc(size_t  );
+N   /*
+N    * allocates space for an object whose size is specified by 'size' and whose
+N    * value is indeterminate.
+N    * Returns: either a null pointer or a pointer to the allocated space.
+N    */
+Nextern _ARMABI void *realloc(void * /*ptr*/, size_t /*size*/);
+Xextern __declspec(__nothrow) void *realloc(void *  , size_t  );
+N   /*
+N    * changes the size of the object pointed to by ptr to the size specified by
+N    * size. The contents of the object shall be unchanged up to the lesser of
+N    * the new and old sizes. If the new size is larger, the value of the newly
+N    * allocated portion of the object is indeterminate. If ptr is a null
+N    * pointer, the realloc function behaves like a call to malloc for the
+N    * specified size. Otherwise, if ptr does not match a pointer earlier
+N    * returned by calloc, malloc or realloc, or if the space has been
+N    * deallocated by a call to free or realloc, the behaviour is undefined.
+N    * If the space cannot be allocated, the object pointed to by ptr is
+N    * unchanged. If size is zero and ptr is not a null pointer, the object it
+N    * points to is freed.
+N    * Returns: either a null pointer or a pointer to the possibly moved
+N    *          allocated space.
+N    */
+N#if !defined(__STRICT_ANSI__)
+X#if !0L
+Nextern _ARMABI int posix_memalign(void ** /*ret*/, size_t /*alignment*/, size_t /*size*/);
+Xextern __declspec(__nothrow) int posix_memalign(void **  , size_t  , size_t  );
+N   /*
+N    * allocates space for an object of size 'size', aligned to a
+N    * multiple of 'alignment' (which must be a power of two and at
+N    * least 4).
+N    *
+N    * On success, a pointer to the allocated object is stored in
+N    * *ret, and zero is returned. On failure, the return value is
+N    * either ENOMEM (allocation failed because no suitable piece of
+N    * memory was available) or EINVAL (the 'alignment' parameter was
+N    * invalid).
+N    */
+N#endif
+Ntypedef int (*__heapprt)(void *, char const *, ...);
+Nextern _ARMABI void __heapstats(int (* /*dprint*/)(void * /*param*/,
+Xextern __declspec(__nothrow) void __heapstats(int (*  )(void *  ,
+N                                           char const * /*format*/, ...),
+N                        void * /*param*/) __attribute__((__nonnull__(1)));
+N   /*
+N    * reports current heap statistics (eg. number of free blocks in
+N    * the free-list). Output is as implementation-defined free-form
+N    * text, provided via the dprint function. `param' gives an
+N    * extra data word to pass to dprint. You can call
+N    * __heapstats(fprintf,stdout) by casting fprintf to the above
+N    * function type; the typedef `__heapprt' is provided for this
+N    * purpose.
+N    *
+N    * `dprint' will not be called while the heap is being examined,
+N    * so it can allocate memory itself without trouble.
+N    */
+Nextern _ARMABI int __heapvalid(int (* /*dprint*/)(void * /*param*/,
+Xextern __declspec(__nothrow) int __heapvalid(int (*  )(void *  ,
+N                                           char const * /*format*/, ...),
+N                       void * /*param*/, int /*verbose*/) __attribute__((__nonnull__(1)));
+N   /*
+N    * performs a consistency check on the heap. Errors are reported
+N    * through dprint, like __heapstats. If `verbose' is nonzero,
+N    * full diagnostic information on the heap state is printed out.
+N    *
+N    * This routine probably won't work if the heap isn't a
+N    * contiguous chunk (for example, if __user_heap_extend has been
+N    * overridden).
+N    *
+N    * `dprint' may be called while the heap is being examined or
+N    * even in an invalid state, so it must perform no memory
+N    * allocation. In particular, if `dprint' calls (or is) a stdio
+N    * function, the stream it outputs to must already have either
+N    * been written to or been setvbuf'ed, or else the system will
+N    * allocate buffer space for it on the first call to dprint.
+N    */
+Nextern _ARMABI_NORETURN void abort(void);
+Xextern __declspec(__nothrow) __declspec(__noreturn) void abort(void);
+N   /*
+N    * causes abnormal program termination to occur, unless the signal SIGABRT
+N    * is being caught and the signal handler does not return. Whether open
+N    * output streams are flushed or open streams are closed or temporary
+N    * files removed is implementation-defined.
+N    * An implementation-defined form of the status 'unsuccessful termination'
+N    * is returned to the host environment by means of a call to
+N    * raise(SIGABRT).
+N    */
+N
+Nextern _ARMABI int atexit(void (* /*func*/)(void)) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) int atexit(void (*  )(void)) __attribute__((__nonnull__(1)));
+N   /*
+N    * registers the function pointed to by func, to be called without its
+N    * arguments at normal program termination. It is possible to register at
+N    * least 32 functions.
+N    * Returns: zero if the registration succeeds, nonzero if it fails.
+N    */
+N#if defined(__EDG__) && !defined(__GNUC__)
+X#if 1L && !0L
+N#define __LANGUAGE_LINKAGE_CHANGES_FUNCTION_TYPE
+N#endif
+N#if defined(__cplusplus) && defined(__LANGUAGE_LINKAGE_CHANGES_FUNCTION_TYPE) 
+X#if 0L && 1L 
+S    /* atexit that takes a ptr to a function with C++ linkage 
+S     * but not in GNU mode  
+S     */
+S    typedef void (* __C_exitfuncptr)();
+S    extern "C++"
+S    inline int atexit(void (* __func)()) {
+S      return atexit((__C_exitfuncptr)__func);
+S    }
+N#endif
+N
+N
+Nextern _ARMABI_NORETURN void exit(int /*status*/);
+Xextern __declspec(__nothrow) __declspec(__noreturn) void exit(int  );
+N   /*
+N    * causes normal program termination to occur. If more than one call to the
+N    * exit function is executed by a program, the behaviour is undefined.
+N    * First, all functions registered by the atexit function are called, in the
+N    * reverse order of their registration.
+N    * Next, all open output streams are flushed, all open streams are closed,
+N    * and all files created by the tmpfile function are removed.
+N    * Finally, control is returned to the host environment. If the value of
+N    * status is zero or EXIT_SUCCESS, an implementation-defined form of the
+N    * status 'successful termination' is returned. If the value of status is
+N    * EXIT_FAILURE, an implementation-defined form of the status
+N    * 'unsuccessful termination' is returned. Otherwise the status returned
+N    * is implementation-defined.
+N    */
+N
+Nextern _ARMABI_NORETURN void _Exit(int /*status*/);
+Xextern __declspec(__nothrow) __declspec(__noreturn) void _Exit(int  );
+N   /*
+N    * causes normal program termination to occur. No functions registered
+N    * by the atexit function are called.
+N    * In this implementation, all open output streams are flushed, all
+N    * open streams are closed, and all files created by the tmpfile function
+N    * are removed.
+N    * Control is returned to the host environment. The status returned to
+N    * the host environment is determined in the same way as for 'exit'.
+N    */     
+N
+Nextern _ARMABI char *getenv(const char * /*name*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) char *getenv(const char *  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * searches the environment list, provided by the host environment, for a
+N    * string that matches the string pointed to by name. The set of environment
+N    * names and the method for altering the environment list are
+N    * implementation-defined.
+N    * Returns: a pointer to a string associated with the matched list member.
+N    *          The array pointed to shall not be modified by the program, but
+N    *          may be overwritten by a subsequent call to the getenv function.
+N    *          If the specified name cannot be found, a null pointer is
+N    *          returned.
+N    */
+N
+Nextern _ARMABI int  system(const char * /*string*/);
+Xextern __declspec(__nothrow) int  system(const char *  );
+N   /*
+N    * passes the string pointed to by string to the host environment to be
+N    * executed by a command processor in an implementation-defined manner.
+N    * A null pointer may be used for string, to inquire whether a command
+N    * processor exists.
+N    *
+N    * Returns: If the argument is a null pointer, the system function returns
+N    *          non-zero only if a command processor is available. If the
+N    *          argument is not a null pointer, the system function returns an
+N    *          implementation-defined value.
+N    */
+N
+Nextern _ARMABI_THROW void *bsearch(const void * /*key*/, const void * /*base*/,
+Xextern  void *bsearch(const void *  , const void *  ,
+N              size_t /*nmemb*/, size_t /*size*/,
+N              int (* /*compar*/)(const void *, const void *)) __attribute__((__nonnull__(1,2,5)));
+N   /*
+N    * searches an array of nmemb objects, the initial member of which is
+N    * pointed to by base, for a member that matches the object pointed to by
+N    * key. The size of each member of the array is specified by size.
+N    * The contents of the array shall be in ascending sorted order according to
+N    * a comparison function pointed to by compar, which is called with two
+N    * arguments that point to the key object and to an array member, in that
+N    * order. The function shall return an integer less than, equal to, or
+N    * greater than zero if the key object is considered, respectively, to be
+N    * less than, to match, or to be greater than the array member.
+N    * Returns: a pointer to a matching member of the array, or a null pointer
+N    *          if no match is found. If two members compare as equal, which
+N    *          member is matched is unspecified.
+N    */
+N#if defined(__cplusplus) && defined(__LANGUAGE_LINKAGE_CHANGES_FUNCTION_TYPE)
+X#if 0L && 1L
+S    /* bsearch that takes a ptr to a function with C++ linkage 
+S     * but not in GNU mode
+S     */
+S    typedef int (* __C_compareprocptr)(const void *, const void *);
+S    extern "C++"
+S    void *bsearch(const void * __key, const void * __base,
+S              size_t __nmemb, size_t __size,
+S              int (* __compar)(const void *, const void *)) __attribute__((__nonnull__(1,2,5)));
+S    extern "C++"
+S    inline void *bsearch(const void * __key, const void * __base,
+S              size_t __nmemb, size_t __size,
+S              int (* __compar)(const void *, const void *)) {
+S      return bsearch(__key, __base, __nmemb, __size, (__C_compareprocptr)__compar);
+S    }
+N#endif
+N
+N
+Nextern _ARMABI_THROW void qsort(void * /*base*/, size_t /*nmemb*/, size_t /*size*/,
+Xextern  void qsort(void *  , size_t  , size_t  ,
+N           int (* /*compar*/)(const void *, const void *)) __attribute__((__nonnull__(1,4)));
+N   /*
+N    * sorts an array of nmemb objects, the initial member of which is pointed
+N    * to by base. The size of each object is specified by size.
+N    * The contents of the array shall be in ascending order according to a
+N    * comparison function pointed to by compar, which is called with two
+N    * arguments that point to the objects being compared. The function shall
+N    * return an integer less than, equal to, or greater than zero if the first
+N    * argument is considered to be respectively less than, equal to, or greater
+N    * than the second. If two members compare as equal, their order in the
+N    * sorted array is unspecified.
+N    */
+N
+N#if defined(__cplusplus) && defined(__LANGUAGE_LINKAGE_CHANGES_FUNCTION_TYPE)
+X#if 0L && 1L
+S    /* qsort that takes a ptr to a function with C++ linkage 
+S     * but not in GNU mode
+S     */    
+S    extern "C++"
+S    void qsort(void * __base, size_t __nmemb, size_t __size,
+S               int (* __compar)(const void *, const void *)) __attribute__((__nonnull__(1,4)));
+S    extern "C++"
+S    inline void qsort(void * __base, size_t __nmemb, size_t __size,
+S                      int (* __compar)(const void *, const void *)) {
+S      qsort(__base, __nmemb, __size, (__C_compareprocptr)__compar);
+S    }
+N#endif
+N
+Nextern _ARMABI_PURE int abs(int /*j*/);
+Xextern __declspec(__nothrow) __attribute__((const)) int abs(int  );
+N   /*
+N    * computes the absolute value of an integer j. If the result cannot be
+N    * represented, the behaviour is undefined.
+N    * Returns: the absolute value.
+N    */
+N
+Nextern _ARMABI_PURE div_t div(int /*numer*/, int /*denom*/);
+Xextern __declspec(__nothrow) __attribute__((const)) div_t div(int  , int  );
+N   /*
+N    * computes the quotient and remainder of the division of the numerator
+N    * numer by the denominator denom. If the division is inexact, the resulting
+N    * quotient is the integer of lesser magnitude that is the nearest to the
+N    * algebraic quotient. If the result cannot be represented, the behaviour is
+N    * undefined; otherwise, quot * denom + rem shall equal numer.
+N    * Returns: a structure of type div_t, comprising both the quotient and the
+N    *          remainder. the structure shall contain the following members,
+N    *          in either order.
+N    *          int quot; int rem;
+N    */
+Nextern _ARMABI_PURE long int labs(long int /*j*/);
+Xextern __declspec(__nothrow) __attribute__((const)) long int labs(long int  );
+N   /*
+N    * computes the absolute value of an long integer j. If the result cannot be
+N    * represented, the behaviour is undefined.
+N    * Returns: the absolute value.
+N    */
+N#ifdef __cplusplus
+S   extern "C++" inline _ARMABI_PURE long abs(long int x) { return labs(x); }
+N#endif
+N
+Nextern _ARMABI_PURE ldiv_t ldiv(long int /*numer*/, long int /*denom*/);
+Xextern __declspec(__nothrow) __attribute__((const)) ldiv_t ldiv(long int  , long int  );
+N   /*
+N    * computes the quotient and remainder of the division of the numerator
+N    * numer by the denominator denom. If the division is inexact, the sign of
+N    * the resulting quotient is that of the algebraic quotient, and the
+N    * magnitude of the resulting quotient is the largest integer less than the
+N    * magnitude of the algebraic quotient. If the result cannot be represented,
+N    * the behaviour is undefined; otherwise, quot * denom + rem shall equal
+N    * numer.
+N    * Returns: a structure of type ldiv_t, comprising both the quotient and the
+N    *          remainder. the structure shall contain the following members,
+N    *          in either order.
+N    *          long int quot; long int rem;
+N    */
+N#ifdef __cplusplus
+S   extern "C++" inline _ARMABI_PURE ldiv_t div(long int __numer, long int __denom) {
+S       return ldiv(__numer, __denom);
+S   }
+N#endif
+N
+N#if !defined(__STRICT_ANSI__) || __USE_C99_STDLIB
+X#if !0L || __USE_C99_STDLIB
+Nextern _ARMABI_PURE __LONGLONG llabs(__LONGLONG /*j*/);
+Xextern __declspec(__nothrow) __attribute__((const)) long long llabs(long long  );
+N   /*
+N    * computes the absolute value of a long long integer j. If the
+N    * result cannot be represented, the behaviour is undefined.
+N    * Returns: the absolute value.
+N    */
+N#ifdef __cplusplus
+S   extern "C++" inline _ARMABI_PURE __LONGLONG abs(__LONGLONG x) { return llabs(x); }
+N#endif
+N
+Nextern _ARMABI_PURE lldiv_t lldiv(__LONGLONG /*numer*/, __LONGLONG /*denom*/);
+Xextern __declspec(__nothrow) __attribute__((const)) lldiv_t lldiv(long long  , long long  );
+N   /*
+N    * computes the quotient and remainder of the division of the numerator
+N    * numer by the denominator denom. If the division is inexact, the sign of
+N    * the resulting quotient is that of the algebraic quotient, and the
+N    * magnitude of the resulting quotient is the largest integer less than the
+N    * magnitude of the algebraic quotient. If the result cannot be represented,
+N    * the behaviour is undefined; otherwise, quot * denom + rem shall equal
+N    * numer.
+N    * Returns: a structure of type lldiv_t, comprising both the quotient and the
+N    *          remainder. the structure shall contain the following members,
+N    *          in either order.
+N    *          long long quot; long long rem;
+N    */
+N#ifdef __cplusplus
+S   extern "C++" inline _ARMABI_PURE lldiv_t div(__LONGLONG __numer, __LONGLONG __denom) {
+S       return lldiv(__numer, __denom);
+S   }
+N#endif
+N#endif
+N
+N#if !(__ARM_NO_DEPRECATED_FUNCTIONS)
+N/*
+N * ARM real-time divide functions for guaranteed performance
+N */
+Ntypedef struct __sdiv32by16 { int quot, rem; } __sdiv32by16;
+Ntypedef struct __udiv32by16 { unsigned int quot, rem; } __udiv32by16;
+N   /* used int so that values return in separate regs, although 16-bit */
+Ntypedef struct __sdiv64by32 { int rem, quot; } __sdiv64by32;
+N
+N__value_in_regs extern _ARMABI_PURE __sdiv32by16 __rt_sdiv32by16(
+X__value_in_regs extern __declspec(__nothrow) __attribute__((const)) __sdiv32by16 __rt_sdiv32by16(
+N     int /*numer*/,
+N     short int /*denom*/);
+N   /*
+N    * Signed divide: (16-bit quot), (16-bit rem) = (32-bit) / (16-bit)
+N    */
+N__value_in_regs extern _ARMABI_PURE __udiv32by16 __rt_udiv32by16(
+X__value_in_regs extern __declspec(__nothrow) __attribute__((const)) __udiv32by16 __rt_udiv32by16(
+N     unsigned int /*numer*/,
+N     unsigned short /*denom*/);
+N   /*
+N    * Unsigned divide: (16-bit quot), (16-bit rem) = (32-bit) / (16-bit)
+N    */
+N__value_in_regs extern _ARMABI_PURE __sdiv64by32 __rt_sdiv64by32(
+X__value_in_regs extern __declspec(__nothrow) __attribute__((const)) __sdiv64by32 __rt_sdiv64by32(
+N     int /*numer_h*/, unsigned int /*numer_l*/,
+N     int /*denom*/);
+N   /*
+N    * Signed divide: (32-bit quot), (32-bit rem) = (64-bit) / (32-bit)
+N    */
+N#endif
+N
+N/*
+N * ARM floating-point mask/status function (for both hardfp and softfp)
+N */
+Nextern _ARMABI unsigned int __fp_status(unsigned int /*mask*/, unsigned int /*flags*/);
+Xextern __declspec(__nothrow) unsigned int __fp_status(unsigned int  , unsigned int  );
+N   /*
+N    * mask and flags are bit-fields which correspond directly to the
+N    * floating point status register in the FPE/FPA and fplib.  
+N    * __fp_status returns the current value of the status register,
+N    * and also sets the writable bits of the word
+N    * (the exception control and flag bytes) to:
+N    *
+N    *     new = (old & ~mask) ^ flags;
+N    */
+N#define __fpsr_IXE  0x100000
+N#define __fpsr_UFE  0x80000
+N#define __fpsr_OFE  0x40000
+N#define __fpsr_DZE  0x20000
+N#define __fpsr_IOE  0x10000
+N
+N#define __fpsr_IXC  0x10
+N#define __fpsr_UFC  0x8
+N#define __fpsr_OFC  0x4
+N#define __fpsr_DZC  0x2
+N#define __fpsr_IOC  0x1
+N
+N/*
+N * Multibyte Character Functions.
+N * The behaviour of the multibyte character functions is affected by the
+N * LC_CTYPE category of the current locale. For a state-dependent encoding,
+N * each function is placed into its initial state by a call for which its
+N * character pointer argument, s, is a null pointer. Subsequent calls with s
+N * as other than a null pointer cause the internal state of the function to be
+N * altered as necessary. A call with s as a null pointer causes these functions
+N * to return a nonzero value if encodings have state dependency, and a zero
+N * otherwise. After the LC_CTYPE category is changed, the shift state of these
+N * functions is indeterminate.
+N */
+Nextern _ARMABI int mblen(const char * /*s*/, size_t /*n*/);
+Xextern __declspec(__nothrow) int mblen(const char *  , size_t  );
+N   /*
+N    * If s is not a null pointer, the mblen function determines the number of
+N    * bytes compromising the multibyte character pointed to by s. Except that
+N    * the shift state of the mbtowc function is not affected, it is equivalent
+N    * to   mbtowc((wchar_t *)0, s, n);
+N    * Returns: If s is a null pointer, the mblen function returns a nonzero or
+N    *          zero value, if multibyte character encodings, respectively, do
+N    *          or do not have state-dependent encodings. If s is not a null
+N    *          pointer, the mblen function either returns a 0 (if s points to a
+N    *          null character), or returns the number of bytes that compromise
+N    *          the multibyte character (if the next n of fewer bytes form a
+N    *          valid multibyte character), or returns -1 (they do not form a
+N    *          valid multibyte character).
+N    */
+Nextern _ARMABI int mbtowc(wchar_t * __restrict /*pwc*/,
+Xextern __declspec(__nothrow) int mbtowc(wchar_t * __restrict  ,
+N                   const char * __restrict /*s*/, size_t /*n*/);
+N   /*
+N    * If s is not a null pointer, the mbtowc function determines the number of
+N    * bytes that compromise the multibyte character pointed to by s. It then
+N    * determines the code for value of type wchar_t that corresponds to that
+N    * multibyte character. (The value of the code corresponding to the null
+N    * character is zero). If the multibyte character is valid and pwc is not a
+N    * null pointer, the mbtowc function stores the code in the object pointed
+N    * to by pwc. At most n bytes of the array pointed to by s will be examined.
+N    * Returns: If s is a null pointer, the mbtowc function returns a nonzero or
+N    *          zero value, if multibyte character encodings, respectively, do
+N    *          or do not have state-dependent encodings. If s is not a null
+N    *          pointer, the mbtowc function either returns a 0 (if s points to
+N    *          a null character), or returns the number of bytes that
+N    *          compromise the converted multibyte character (if the next n of
+N    *          fewer bytes form a valid multibyte character), or returns -1
+N    *          (they do not form a valid multibyte character).
+N    */
+Nextern _ARMABI int wctomb(char * /*s*/, wchar_t /*wchar*/);
+Xextern __declspec(__nothrow) int wctomb(char *  , wchar_t  );
+N   /*
+N    * determines the number of bytes need to represent the multibyte character
+N    * corresponding to the code whose value is wchar (including any change in
+N    * shift state). It stores the multibyte character representation in the
+N    * array object pointed to by s (if s is not a null pointer). At most
+N    * MB_CUR_MAX characters are stored. If the value of wchar is zero, the
+N    * wctomb function is left in the initial shift state).
+N    * Returns: If s is a null pointer, the wctomb function returns a nonzero or
+N    *          zero value, if multibyte character encodings, respectively, do
+N    *          or do not have state-dependent encodings. If s is not a null
+N    *          pointer, the wctomb function returns a -1 if the value of wchar
+N    *          does not correspond to a valid multibyte character, or returns
+N    *          the number of bytes that compromise the multibyte character
+N    *          corresponding to the value of wchar.
+N    */
+N
+N/*
+N * Multibyte String Functions.
+N * The behaviour of the multibyte string functions is affected by the LC_CTYPE
+N * category of the current locale.
+N */
+Nextern _ARMABI size_t mbstowcs(wchar_t * __restrict /*pwcs*/,
+Xextern __declspec(__nothrow) size_t mbstowcs(wchar_t * __restrict  ,
+N                      const char * __restrict /*s*/, size_t /*n*/) __attribute__((__nonnull__(2)));
+N   /*
+N    * converts a sequence of multibyte character that begins in the initial
+N    * shift state from the array pointed to by s into a sequence of
+N    * corresponding codes and stores not more than n codes into the array
+N    * pointed to by pwcs. No multibyte character that follow a null character
+N    * (which is converted into a code with value zero) will be examined or
+N    * converted. Each multibyte character is converted as if by a call to
+N    * mbtowc function, except that the shift state of the mbtowc function is
+N    * not affected. No more than n elements will be modified in the array
+N    * pointed to by pwcs. If copying takes place between objects that overlap,
+N    * the behaviour is undefined.
+N    * Returns: If an invalid multibyte character is encountered, the mbstowcs
+N    *          function returns (size_t)-1. Otherwise, the mbstowcs function
+N    *          returns the number of array elements modified, not including
+N    *          a terminating zero code, if any.
+N    */
+Nextern _ARMABI size_t wcstombs(char * __restrict /*s*/,
+Xextern __declspec(__nothrow) size_t wcstombs(char * __restrict  ,
+N                      const wchar_t * __restrict /*pwcs*/, size_t /*n*/) __attribute__((__nonnull__(2)));
+N   /*
+N    * converts a sequence of codes that correspond to multibyte characters
+N    * from the array pointed to by pwcs into a sequence of multibyte
+N    * characters that begins in the initial shift state and stores these
+N    * multibyte characters into the array pointed to by s, stopping if a
+N    * multibyte character would exceed the limit of n total bytes or if a
+N    * null character is stored. Each code is converted as if by a call to the
+N    * wctomb function, except that the shift state of the wctomb function is
+N    * not affected. No more than n elements will be modified in the array
+N    * pointed to by s. If copying takes place between objects that overlap,
+N    * the behaviour is undefined.
+N    * Returns: If a code is encountered that does not correspond to a valid
+N    *          multibyte character, the wcstombs function returns (size_t)-1.
+N    *          Otherwise, the wcstombs function returns the number of bytes
+N    *          modified, not including a terminating null character, if any.
+N    */
+N
+Nextern _ARMABI void __use_realtime_heap(void);
+Xextern __declspec(__nothrow) void __use_realtime_heap(void);
+Nextern _ARMABI void __use_realtime_division(void);
+Xextern __declspec(__nothrow) void __use_realtime_division(void);
+Nextern _ARMABI void __use_two_region_memory(void);
+Xextern __declspec(__nothrow) void __use_two_region_memory(void);
+Nextern _ARMABI void __use_no_heap(void);
+Xextern __declspec(__nothrow) void __use_no_heap(void);
+Nextern _ARMABI void __use_no_heap_region(void);
+Xextern __declspec(__nothrow) void __use_no_heap_region(void);
+N
+Nextern _ARMABI char const *__C_library_version_string(void);
+Xextern __declspec(__nothrow) char const *__C_library_version_string(void);
+Nextern _ARMABI int __C_library_version_number(void);
+Xextern __declspec(__nothrow) int __C_library_version_number(void);
+N
+N    #ifdef __cplusplus
+S         }  /* extern "C" */
+S      }  /* namespace std */
+N    #endif /* __cplusplus */
+N  #endif /* __STDLIB_DECLS */
+N
+N  #if _AEABI_PORTABILITY_LEVEL != 0 && !defined _AEABI_PORTABLE
+X  #if _AEABI_PORTABILITY_LEVEL != 0 && !0L
+S    #define _AEABI_PORTABLE
+N  #endif
+N
+N  #ifdef __cplusplus
+S    #ifndef __STDLIB_NO_EXPORTS
+S      #if !defined(__STRICT_ANSI__) || __USE_C99_STDLIB
+S        using ::std::atoll;
+S        using ::std::lldiv_t;
+S      #endif /* !defined(__STRICT_ANSI__) || __USE_C99_STDLIB */
+S      using ::std::div_t;
+S      using ::std::ldiv_t;
+S      using ::std::atof;
+S      using ::std::atoi;
+S      using ::std::atol;
+S      using ::std::strtod;
+S#if !defined(__STRICT_ANSI__) || __USE_C99_STDLIB
+S      using ::std::strtof;
+S      using ::std::strtold;
+S#endif
+S      using ::std::strtol;
+S      using ::std::strtoul;
+S      using ::std::strtoll;
+S      using ::std::strtoull;
+S      using ::std::rand;
+S      using ::std::srand;
+S      using ::std::_rand_state;
+S      using ::std::_rand_r;
+S      using ::std::_srand_r;
+S      using ::std::_ANSI_rand_state;
+S      using ::std::_ANSI_rand_r;
+S      using ::std::_ANSI_srand_r;
+S      using ::std::calloc;
+S      using ::std::free;
+S      using ::std::malloc;
+S      using ::std::realloc;
+S#if !defined(__STRICT_ANSI__)
+S      using ::std::posix_memalign;
+S#endif
+S      using ::std::__heapprt;
+S      using ::std::__heapstats;
+S      using ::std::__heapvalid;
+S      using ::std::abort;
+S      using ::std::atexit;
+S      using ::std::exit;
+S      using ::std::_Exit;
+S      using ::std::getenv;
+S      using ::std::system;
+S      using ::std::bsearch;
+S      using ::std::qsort;
+S      using ::std::abs;
+S      using ::std::div;
+S      using ::std::labs;
+S      using ::std::ldiv;
+S      #if !defined(__STRICT_ANSI__) || __USE_C99_STDLIB
+S        using ::std::llabs;
+S        using ::std::lldiv;
+S      #endif /* !defined(__STRICT_ANSI__) || __USE_C99_STDLIB */
+S#if !(__ARM_NO_DEPRECATED_FUNCTIONS)
+S      using ::std::__sdiv32by16;
+S      using ::std::__udiv32by16;
+S      using ::std::__sdiv64by32;
+S      using ::std::__rt_sdiv32by16;
+S      using ::std::__rt_udiv32by16;
+S      using ::std::__rt_sdiv64by32;
+S#endif
+S      using ::std::__fp_status;
+S      using ::std::mblen;
+S      using ::std::mbtowc;
+S      using ::std::wctomb;
+S      using ::std::mbstowcs;
+S      using ::std::wcstombs;
+S      using ::std::__use_realtime_heap;
+S      using ::std::__use_realtime_division;
+S      using ::std::__use_two_region_memory;
+S      using ::std::__use_no_heap;
+S      using ::std::__use_no_heap_region;
+S      using ::std::__C_library_version_string;
+S      using ::std::__C_library_version_number;
+S      using ::std::size_t;
+S      using ::std::__aeabi_MB_CUR_MAX;
+S    #endif /* __STDLIB_NO_EXPORTS */
+N  #endif /* __cplusplus */
+N
+N#undef __LONGLONG
+N
+N#endif /* __stdlib_h */
+N
+N/* end of stdlib.h */
+L 67 "..\..\User\RTT\SEGGER_RTT_printf.c" 2
+N#include <stdarg.h>
+L 1 "C:\Program1\ARM\ARMCC\Bin\..\include\stdarg.h" 1
+N/* stdarg.h: ANSI 'C' (X3J11 Oct 88) library header, section 4.8 */
+N/* Copyright (C) Codemist Ltd., 1988                            */
+N/* Copyright (C) ARM Ltd., 1991-1999. All rights reserved */
+N
+N/*
+N * RCS $Revision$
+N * Checkin $Date$
+N * Revising $Author: agrant $
+N */
+N
+N#ifndef __stdarg_h
+N#define __stdarg_h
+N#define __ARMCLIB_VERSION 5060037
+N
+N  #ifndef __STDARG_DECLS
+N  #define __STDARG_DECLS
+N
+N    #undef __CLIBNS
+N
+N    #ifdef __cplusplus
+S      namespace std {
+S          #define __CLIBNS ::std::
+S          extern "C" {
+N    #else
+N      #define __CLIBNS
+N    #endif  /* __cplusplus */
+N
+N/*
+N * stdarg.h declares a type and defines macros for advancing through a
+N * list of arguments whose number and types are not known to the called
+N * function when it is translated. A function may be called with a variable
+N * number of arguments of differing types. Its parameter list contains one or
+N * more parameters. The rightmost parameter plays a special role in the access
+N * mechanism, and will be called parmN in this description.
+N */
+N
+N/* N.B. <stdio.h> is required to declare vfprintf() without defining      */
+N/* va_list.  Clearly the type __va_list there must keep in step.          */
+N#ifdef __clang__
+S  typedef __builtin_va_list va_list;
+S  #define va_start(ap, param) __builtin_va_start(ap, param)
+S  #define va_end(ap)          __builtin_va_end(ap)
+S  #define va_arg(ap, type)    __builtin_va_arg(ap, type)
+S  #if __STDC_VERSION__ >= 199900L || __cplusplus >= 201103L || !defined(__STRICT_ANSI__)
+S  #define va_copy(dest, src)  __builtin_va_copy(dest, src)
+S  #endif
+N#else
+N  #ifdef __TARGET_ARCH_AARCH64
+S    typedef struct __va_list {
+S      void *__stack;
+S      void *__gr_top;
+S      void *__vr_top;
+S      int __gr_offs;
+S      int __vr_offs;
+S    } va_list;
+N  #else
+N    typedef struct __va_list { void *__ap; } va_list;
+N  #endif
+N   /*
+N    * an array type suitable for holding information needed by the macro va_arg
+N    * and the function va_end. The called function shall declare a variable
+N    * (referred to as ap) having type va_list. The variable ap may be passed as
+N    * an argument to another function.
+N    * Note: va_list is an array type so that when an object of that type
+N    * is passed as an argument it gets passed by reference.
+N    */
+N  #define va_start(ap, parmN) __va_start(ap, parmN)
+N
+N   /*
+N    * The va_start macro shall be executed before any access to the unnamed
+N    * arguments. The parameter ap points to an object that has type va_list.
+N    * The va_start macro initialises ap for subsequent use by va_arg and
+N    * va_end. The parameter parmN is the identifier of the rightmost parameter
+N    * in the variable parameter list in the function definition (the one just
+N    * before the '...'). If the parameter parmN is declared with the register
+N    * storage class an error is given.
+N    * If parmN is a narrow type (char, short, float) an error is given in
+N    * strict ANSI mode, or a warning otherwise.
+N    * Returns: no value.
+N    */
+N  #define va_arg(ap, type) __va_arg(ap, type)
+N
+N   /*
+N    * The va_arg macro expands to an expression that has the type and value of
+N    * the next argument in the call. The parameter ap shall be the same as the
+N    * va_list ap initialised by va_start. Each invocation of va_arg modifies
+N    * ap so that successive arguments are returned in turn. The parameter
+N    * 'type' is a type name such that the type of a pointer to an object that
+N    * has the specified type can be obtained simply by postfixing a * to
+N    * 'type'. If type is a narrow type, an error is given in strict ANSI
+N    * mode, or a warning otherwise. If the type is an array or function type,
+N    * an error is given.
+N    * In non-strict ANSI mode, 'type' is allowed to be any expression.
+N    * Returns: The first invocation of the va_arg macro after that of the
+N    *          va_start macro returns the value of the argument after that
+N    *          specified by parmN. Successive invocations return the values of
+N    *          the remaining arguments in succession.
+N    *          The result is cast to 'type', even if 'type' is narrow.
+N    */
+N
+N#define __va_copy(dest, src) ((void)((dest) = (src)))
+N
+N#if !defined(__STRICT_ANSI__) || (defined(__STDC_VERSION__) && 199901L <= __STDC_VERSION__) || (defined(__cplusplus) && 201103L <= __cplusplus)
+X#if !0L || (1L && 199901L <= 199409L) || (0L && 201103L <= __cplusplus)
+N   /* va_copy is in C99 and non-strict C90 and non-strict C++
+N    * __va_copy is always present.
+N    */
+N  #define va_copy(dest, src) ((void)((dest) = (src)))
+N
+N   /* The va_copy macro makes the va_list dest be a copy of
+N    * the va_list src, as if the va_start macro had been applied
+N    * to it followed by the same sequence of uses of the va_arg
+N    * macro as had previously been used to reach the present state
+N    * of src.
+N    */
+N#endif
+N
+N#define va_end(ap) __va_end(ap)
+N   /*
+N    * The va_end macro facilitates a normal return from the function whose
+N    * variable argument list was referenced by the expansion of va_start that
+N    * initialised the va_list ap. If the va_end macro is not invoked before
+N    * the return, the behaviour is undefined.
+N    * Returns: no value.
+N    */
+N#endif /* __clang__ */
+N
+N    #ifdef __cplusplus
+S         }  /* extern "C" */
+S      }  /* namespace std */
+N    #endif /* __cplusplus */
+N
+N    #ifdef __GNUC__
+S     /* be cooperative with glibc */
+S     typedef __CLIBNS va_list __gnuc_va_list;
+S     #define __GNUC_VA_LIST
+S     #undef __need___va_list
+N    #endif
+N
+N  #endif /* __STDARG_DECLS */
+N
+N  #ifdef __cplusplus
+S    #ifndef __STDARG_NO_EXPORTS
+S      using ::std::va_list;
+S    #endif
+N  #endif /* __cplusplus */
+N#endif
+N
+N/* end of stdarg.h */
+N
+L 68 "..\..\User\RTT\SEGGER_RTT_printf.c" 2
+N
+N
+N#define FORMAT_FLAG_LEFT_JUSTIFY   (1u << 0)
+N#define FORMAT_FLAG_PAD_ZERO       (1u << 1)
+N#define FORMAT_FLAG_PRINT_SIGN     (1u << 2)
+N#define FORMAT_FLAG_ALTERNATE      (1u << 3)
+N
+N/*********************************************************************
+N*
+N*       Types
+N*
+N**********************************************************************
+N*/
+N
+Ntypedef struct {
+N  char*     pBuffer;
+N  unsigned  BufferSize;
+N  unsigned  Cnt;
+N
+N  int   ReturnValue;
+N
+N  unsigned RTTBufferIndex;
+N} SEGGER_RTT_PRINTF_DESC;
+N
+N/*********************************************************************
+N*
+N*       Function prototypes
+N*
+N**********************************************************************
+N*/
+Nint SEGGER_RTT_vprintf(unsigned BufferIndex, const char * sFormat, va_list * pParamList);
+N
+N/*********************************************************************
+N*
+N*       Static code
+N*
+N**********************************************************************
+N*/
+N/*********************************************************************
+N*
+N*       _StoreChar
+N*/
+Nstatic void _StoreChar(SEGGER_RTT_PRINTF_DESC * p, char c) {
+N  unsigned Cnt;
+N
+N  Cnt = p->Cnt;
+N  if ((Cnt + 1u) <= p->BufferSize) {
+N    *(p->pBuffer + Cnt) = c;
+N    p->Cnt = Cnt + 1u;
+N    p->ReturnValue++;
+N  }
+N  //
+N  // Write part of string, when the buffer is full
+N  //
+N  if (p->Cnt == p->BufferSize) {
+N    if (SEGGER_RTT_Write(p->RTTBufferIndex, p->pBuffer, p->Cnt) != p->Cnt) {
+N      p->ReturnValue = -1;
+N    } else {
+N      p->Cnt = 0u;
+N    }
+N  }
+N}
+N
+N/*********************************************************************
+N*
+N*       _PrintUnsigned
+N*/
+Nstatic void _PrintUnsigned(SEGGER_RTT_PRINTF_DESC * pBufferDesc, unsigned v, unsigned Base, unsigned NumDigits, unsigned FieldWidth, unsigned FormatFlags) {
+N  static const char _aV2C[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+N  unsigned Div;
+N  unsigned Digit;
+N  unsigned Number;
+N  unsigned Width;
+N  char c;
+N
+N  Number = v;
+N  Digit = 1u;
+N  //
+N  // Get actual field width
+N  //
+N  Width = 1u;
+N  while (Number >= Base) {
+N    Number = (Number / Base);
+N    Width++;
+N  }
+N  if (NumDigits > Width) {
+N    Width = NumDigits;
+N  }
+N  //
+N  // Print leading chars if necessary
+N  //
+N  if ((FormatFlags & FORMAT_FLAG_LEFT_JUSTIFY) == 0u) {
+X  if ((FormatFlags & (1u << 0)) == 0u) {
+N    if (FieldWidth != 0u) {
+N      if (((FormatFlags & FORMAT_FLAG_PAD_ZERO) == FORMAT_FLAG_PAD_ZERO) && (NumDigits == 0u)) {
+X      if (((FormatFlags & (1u << 1)) == (1u << 1)) && (NumDigits == 0u)) {
+N        c = '0';
+N      } else {
+N        c = ' ';
+N      }
+N      while ((FieldWidth != 0u) && (Width < FieldWidth)) {
+N        FieldWidth--;
+N        _StoreChar(pBufferDesc, c);
+N        if (pBufferDesc->ReturnValue < 0) {
+N          break;
+N        }
+N      }
+N    }
+N  }
+N  if (pBufferDesc->ReturnValue >= 0) {
+N    //
+N    // Compute Digit.
+N    // Loop until Digit has the value of the highest digit required.
+N    // Example: If the output is 345 (Base 10), loop 2 times until Digit is 100.
+N    //
+N    while (1) {
+N      if (NumDigits > 1u) {       // User specified a min number of digits to print? => Make sure we loop at least that often, before checking anything else (> 1 check avoids problems with NumDigits being signed / unsigned)
+N        NumDigits--;
+N      } else {
+N        Div = v / Digit;
+N        if (Div < Base) {        // Is our divider big enough to extract the highest digit from value? => Done
+N          break;
+N        }
+N      }
+N      Digit *= Base;
+N    }
+N    //
+N    // Output digits
+N    //
+N    do {
+N      Div = v / Digit;
+N      v -= Div * Digit;
+N      _StoreChar(pBufferDesc, _aV2C[Div]);
+N      if (pBufferDesc->ReturnValue < 0) {
+N        break;
+N      }
+N      Digit /= Base;
+N    } while (Digit);
+N    //
+N    // Print trailing spaces if necessary
+N    //
+N    if ((FormatFlags & FORMAT_FLAG_LEFT_JUSTIFY) == FORMAT_FLAG_LEFT_JUSTIFY) {
+X    if ((FormatFlags & (1u << 0)) == (1u << 0)) {
+N      if (FieldWidth != 0u) {
+N        while ((FieldWidth != 0u) && (Width < FieldWidth)) {
+N          FieldWidth--;
+N          _StoreChar(pBufferDesc, ' ');
+N          if (pBufferDesc->ReturnValue < 0) {
+N            break;
+N          }
+N        }
+N      }
+N    }
+N  }
+N}
+N
+N/*********************************************************************
+N*
+N*       _PrintInt
+N*/
+Nstatic void _PrintInt(SEGGER_RTT_PRINTF_DESC * pBufferDesc, int v, unsigned Base, unsigned NumDigits, unsigned FieldWidth, unsigned FormatFlags) {
+N  unsigned Width;
+N  int Number;
+N
+N  Number = (v < 0) ? -v : v;
+N
+N  //
+N  // Get actual field width
+N  //
+N  Width = 1u;
+N  while (Number >= (int)Base) {
+N    Number = (Number / (int)Base);
+N    Width++;
+N  }
+N  if (NumDigits > Width) {
+N    Width = NumDigits;
+N  }
+N  if ((FieldWidth > 0u) && ((v < 0) || ((FormatFlags & FORMAT_FLAG_PRINT_SIGN) == FORMAT_FLAG_PRINT_SIGN))) {
+X  if ((FieldWidth > 0u) && ((v < 0) || ((FormatFlags & (1u << 2)) == (1u << 2)))) {
+N    FieldWidth--;
+N  }
+N
+N  //
+N  // Print leading spaces if necessary
+N  //
+N  if ((((FormatFlags & FORMAT_FLAG_PAD_ZERO) == 0u) || (NumDigits != 0u)) && ((FormatFlags & FORMAT_FLAG_LEFT_JUSTIFY) == 0u)) {
+X  if ((((FormatFlags & (1u << 1)) == 0u) || (NumDigits != 0u)) && ((FormatFlags & (1u << 0)) == 0u)) {
+N    if (FieldWidth != 0u) {
+N      while ((FieldWidth != 0u) && (Width < FieldWidth)) {
+N        FieldWidth--;
+N        _StoreChar(pBufferDesc, ' ');
+N        if (pBufferDesc->ReturnValue < 0) {
+N          break;
+N        }
+N      }
+N    }
+N  }
+N  //
+N  // Print sign if necessary
+N  //
+N  if (pBufferDesc->ReturnValue >= 0) {
+N    if (v < 0) {
+N      v = -v;
+N      _StoreChar(pBufferDesc, '-');
+N    } else if ((FormatFlags & FORMAT_FLAG_PRINT_SIGN) == FORMAT_FLAG_PRINT_SIGN) {
+X    } else if ((FormatFlags & (1u << 2)) == (1u << 2)) {
+N      _StoreChar(pBufferDesc, '+');
+N    } else {
+N
+N    }
+N    if (pBufferDesc->ReturnValue >= 0) {
+N      //
+N      // Print leading zeros if necessary
+N      //
+N      if (((FormatFlags & FORMAT_FLAG_PAD_ZERO) == FORMAT_FLAG_PAD_ZERO) && ((FormatFlags & FORMAT_FLAG_LEFT_JUSTIFY) == 0u) && (NumDigits == 0u)) {
+X      if (((FormatFlags & (1u << 1)) == (1u << 1)) && ((FormatFlags & (1u << 0)) == 0u) && (NumDigits == 0u)) {
+N        if (FieldWidth != 0u) {
+N          while ((FieldWidth != 0u) && (Width < FieldWidth)) {
+N            FieldWidth--;
+N            _StoreChar(pBufferDesc, '0');
+N            if (pBufferDesc->ReturnValue < 0) {
+N              break;
+N            }
+N          }
+N        }
+N      }
+N      if (pBufferDesc->ReturnValue >= 0) {
+N        //
+N        // Print number without sign
+N        //
+N        _PrintUnsigned(pBufferDesc, (unsigned)v, Base, NumDigits, FieldWidth, FormatFlags);
+N      }
+N    }
+N  }
+N}
+N
+N/*********************************************************************
+N*
+N*       Public code
+N*
+N**********************************************************************
+N*/
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_vprintf
+N*
+N*  Function description
+N*    Stores a formatted string in SEGGER RTT control block.
+N*    This data is read by the host.
+N*
+N*  Parameters
+N*    BufferIndex  Index of "Up"-buffer to be used. (e.g. 0 for "Terminal")
+N*    sFormat      Pointer to format string
+N*    pParamList   Pointer to the list of arguments for the format string
+N*
+N*  Return values
+N*    >= 0:  Number of bytes which have been stored in the "Up"-buffer.
+N*     < 0:  Error
+N*/
+Nint SEGGER_RTT_vprintf(unsigned BufferIndex, const char * sFormat, va_list * pParamList) {
+N  char c;
+N  SEGGER_RTT_PRINTF_DESC BufferDesc;
+N  int v;
+N  unsigned NumDigits;
+N  unsigned FormatFlags;
+N  unsigned FieldWidth;
+N  char acBuffer[SEGGER_RTT_PRINTF_BUFFER_SIZE];
+X  char acBuffer[(64u)];
+N
+N  BufferDesc.pBuffer        = acBuffer;
+N  BufferDesc.BufferSize     = SEGGER_RTT_PRINTF_BUFFER_SIZE;
+X  BufferDesc.BufferSize     = (64u);
+N  BufferDesc.Cnt            = 0u;
+N  BufferDesc.RTTBufferIndex = BufferIndex;
+N  BufferDesc.ReturnValue    = 0;
+N
+N  do {
+N    c = *sFormat;
+N    sFormat++;
+N    if (c == 0u) {
+N      break;
+N    }
+N    if (c == '%') {
+N      //
+N      // Filter out flags
+N      //
+N      FormatFlags = 0u;
+N      v = 1;
+N      do {
+N        c = *sFormat;
+N        switch (c) {
+N        case '-': FormatFlags |= FORMAT_FLAG_LEFT_JUSTIFY; sFormat++; break;
+X        case '-': FormatFlags |= (1u << 0); sFormat++; break;
+N        case '0': FormatFlags |= FORMAT_FLAG_PAD_ZERO;     sFormat++; break;
+X        case '0': FormatFlags |= (1u << 1);     sFormat++; break;
+N        case '+': FormatFlags |= FORMAT_FLAG_PRINT_SIGN;   sFormat++; break;
+X        case '+': FormatFlags |= (1u << 2);   sFormat++; break;
+N        case '#': FormatFlags |= FORMAT_FLAG_ALTERNATE;    sFormat++; break;
+X        case '#': FormatFlags |= (1u << 3);    sFormat++; break;
+N        default:  v = 0; break;
+N        }
+N      } while (v);
+N      //
+N      // filter out field with
+N      //
+N      FieldWidth = 0u;
+N      do {
+N        c = *sFormat;
+N        if ((c < '0') || (c > '9')) {
+N          break;
+N        }
+N        sFormat++;
+N        FieldWidth = (FieldWidth * 10u) + ((unsigned)c - '0');
+N      } while (1);
+N
+N      //
+N      // Filter out precision (number of digits to display)
+N      //
+N      NumDigits = 0u;
+N      c = *sFormat;
+N      if (c == '.') {
+N        sFormat++;
+N        do {
+N          c = *sFormat;
+N          if ((c < '0') || (c > '9')) {
+N            break;
+N          }
+N          sFormat++;
+N          NumDigits = NumDigits * 10u + ((unsigned)c - '0');
+N        } while (1);
+N      }
+N      //
+N      // Filter out length modifier
+N      //
+N      c = *sFormat;
+N      do {
+N        if ((c == 'l') || (c == 'h')) {
+N          c = *sFormat;
+N          sFormat++;
+N        } else {
+N          break;
+N        }
+N      } while (1);
+N      //
+N      // Handle specifiers
+N      //
+N      switch (c) {
+N      case 'c': {
+N        char c0;
+N        v = va_arg(*pParamList, int);
+X        v = __va_arg(*pParamList, int);
+N        c0 = (char)v;
+N        _StoreChar(&BufferDesc, c0);
+N        break;
+N      }
+N      case 'd':
+N        v = va_arg(*pParamList, int);
+X        v = __va_arg(*pParamList, int);
+N        _PrintInt(&BufferDesc, v, 10u, NumDigits, FieldWidth, FormatFlags);
+N        break;
+N      case 'u':
+N        v = va_arg(*pParamList, int);
+X        v = __va_arg(*pParamList, int);
+N        _PrintUnsigned(&BufferDesc, (unsigned)v, 10u, NumDigits, FieldWidth, FormatFlags);
+N        break;
+N      case 'x':
+N      case 'X':
+N        v = va_arg(*pParamList, int);
+X        v = __va_arg(*pParamList, int);
+N        _PrintUnsigned(&BufferDesc, (unsigned)v, 16u, NumDigits, FieldWidth, FormatFlags);
+N        break;
+N      case 's':
+N        {
+N          const char * s = va_arg(*pParamList, const char *);
+X          const char * s = __va_arg(*pParamList, const char *);
+N          do {
+N            c = *s;
+N            s++;
+N            if (c == '\0') {
+N              break;
+N            }
+N           _StoreChar(&BufferDesc, c);
+N          } while (BufferDesc.ReturnValue >= 0);
+N        }
+N        break;
+N      case 'p':
+N        v = va_arg(*pParamList, int);
+X        v = __va_arg(*pParamList, int);
+N        _PrintUnsigned(&BufferDesc, (unsigned)v, 16u, 8u, 8u, 0u);
+N        break;
+N      case '%':
+N        _StoreChar(&BufferDesc, '%');
+N        break;
+N      default:
+N        break;
+N      }
+N      sFormat++;
+N    } else {
+N      _StoreChar(&BufferDesc, c);
+N    }
+N  } while (BufferDesc.ReturnValue >= 0);
+N
+N  if (BufferDesc.ReturnValue > 0) {
+N    //
+N    // Write remaining data, if any
+N    //
+N    if (BufferDesc.Cnt != 0u) {
+N      SEGGER_RTT_Write(BufferIndex, acBuffer, BufferDesc.Cnt);
+N    }
+N    BufferDesc.ReturnValue += (int)BufferDesc.Cnt;
+N  }
+N  return BufferDesc.ReturnValue;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_printf
+N*
+N*  Function description
+N*    Stores a formatted string in SEGGER RTT control block.
+N*    This data is read by the host.
+N*
+N*  Parameters
+N*    BufferIndex  Index of "Up"-buffer to be used. (e.g. 0 for "Terminal")
+N*    sFormat      Pointer to format string, followed by the arguments for conversion
+N*
+N*  Return values
+N*    >= 0:  Number of bytes which have been stored in the "Up"-buffer.
+N*     < 0:  Error
+N*
+N*  Notes
+N*    (1) Conversion specifications have following syntax:
+N*          %[flags][FieldWidth][.Precision]ConversionSpecifier
+N*    (2) Supported flags:
+N*          -: Left justify within the field width
+N*          +: Always print sign extension for signed conversions
+N*          0: Pad with 0 instead of spaces. Ignored when using '-'-flag or precision
+N*        Supported conversion specifiers:
+N*          c: Print the argument as one char
+N*          d: Print the argument as a signed integer
+N*          u: Print the argument as an unsigned integer
+N*          x: Print the argument as an hexadecimal integer
+N*          s: Print the string pointed to by the argument
+N*          p: Print the argument as an 8-digit hexadecimal integer. (Argument shall be a pointer to void.)
+N*/
+Nint SEGGER_RTT_printf(unsigned BufferIndex, const char * sFormat, ...) {
+N  va_list ParamList;
+N
+N  va_start(ParamList, sFormat);
+X  __va_start(ParamList, sFormat);
+N  return SEGGER_RTT_vprintf(BufferIndex, sFormat, &ParamList);
+N}
+N/*************************** End of file ****************************/

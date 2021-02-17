@@ -1,0 +1,126 @@
+|main
+clk_12 => clk_12.IN4
+rst_n_i => rst_n_i.IN4
+data_i => data_i.IN1
+syn_o << syn_o.DB_MAX_OUTPUT_PORT_TYPE
+clk1 << <GND>
+
+
+|main|DPD:DPD
+clk => sign_qian~reg0.CLK
+clk => sign_hou~reg0.CLK
+clk => Q.CLK
+rst_n => sign_qian~reg0.ACLR
+rst_n => sign_hou~reg0.ACLR
+rst_n => Q.ACLR
+M_Data => bothEdge.IN1
+M_Data => Q.DATAIN
+clk_Para => always1.IN1
+clk_Para => always1.IN1
+bothEdge <= bothEdge.DB_MAX_OUTPUT_PORT_TYPE
+sign_hou <= sign_hou~reg0.DB_MAX_OUTPUT_PORT_TYPE
+sign_qian <= sign_qian~reg0.DB_MAX_OUTPUT_PORT_TYPE
+
+
+|main|moniflop:moniflop1
+clk => dout_reg.CLK
+clk => start.CLK
+clk => cnt[0].CLK
+clk => cnt[1].CLK
+rst => dout_reg.ACLR
+rst => start.ACLR
+rst => cnt[0].ACLR
+rst => cnt[1].ACLR
+din => start.OUTPUTSELECT
+dout <= dout_reg.DB_MAX_OUTPUT_PORT_TYPE
+
+
+|main|moniflop:moniflop2
+clk => dout_reg.CLK
+clk => start.CLK
+clk => cnt[0].CLK
+clk => cnt[1].CLK
+rst => dout_reg.ACLR
+rst => start.ACLR
+rst => cnt[0].ACLR
+rst => cnt[1].ACLR
+din => start.OUTPUTSELECT
+dout <= dout_reg.DB_MAX_OUTPUT_PORT_TYPE
+
+
+|main|DCO:DCO
+clk => clk_Para~reg0.CLK
+clk => count[0].CLK
+clk => count[1].CLK
+clk => count[2].CLK
+clk => count[3].CLK
+clk => count[4].CLK
+clk => count[5].CLK
+clk => count[6].CLK
+clk => count[7].CLK
+clk => count[8].CLK
+clk => count[9].CLK
+clk => count_cnt[0].CLK
+clk => count_cnt[1].CLK
+clk => count_cnt[2].CLK
+clk => count_cnt[3].CLK
+clk => count_cnt[4].CLK
+clk => count_cnt[5].CLK
+clk => count_cnt[6].CLK
+clk => count_cnt[7].CLK
+clk => count_cnt[8].CLK
+clk => count_cnt[9].CLK
+rst_n => count_cnt[0].PRESET
+rst_n => count_cnt[1].PRESET
+rst_n => count_cnt[2].ACLR
+rst_n => count_cnt[3].PRESET
+rst_n => count_cnt[4].PRESET
+rst_n => count_cnt[5].PRESET
+rst_n => count_cnt[6].ACLR
+rst_n => count_cnt[7].ACLR
+rst_n => count_cnt[8].ACLR
+rst_n => count_cnt[9].ACLR
+rst_n => clk_Para~reg0.PRESET
+rst_n => count[0].ACLR
+rst_n => count[1].ACLR
+rst_n => count[2].ACLR
+rst_n => count[3].ACLR
+rst_n => count[4].ACLR
+rst_n => count[5].ACLR
+rst_n => count[6].ACLR
+rst_n => count[7].ACLR
+rst_n => count[8].ACLR
+rst_n => count[9].ACLR
+carryPulse => count_cnt.OUTPUTSELECT
+carryPulse => count_cnt.OUTPUTSELECT
+carryPulse => count_cnt.OUTPUTSELECT
+carryPulse => count_cnt.OUTPUTSELECT
+carryPulse => count_cnt.OUTPUTSELECT
+carryPulse => count_cnt.OUTPUTSELECT
+carryPulse => count_cnt.OUTPUTSELECT
+carryPulse => count_cnt.OUTPUTSELECT
+carryPulse => count_cnt.OUTPUTSELECT
+carryPulse => count_cnt.OUTPUTSELECT
+subtractionPulse => count_cnt.OUTPUTSELECT
+subtractionPulse => count_cnt.OUTPUTSELECT
+subtractionPulse => count_cnt.OUTPUTSELECT
+subtractionPulse => count_cnt.OUTPUTSELECT
+subtractionPulse => count_cnt.OUTPUTSELECT
+subtractionPulse => count_cnt.OUTPUTSELECT
+subtractionPulse => count_cnt.OUTPUTSELECT
+subtractionPulse => count_cnt.OUTPUTSELECT
+subtractionPulse => count_cnt.OUTPUTSELECT
+subtractionPulse => count_cnt.OUTPUTSELECT
+bothEdge => count.OUTPUTSELECT
+bothEdge => count.OUTPUTSELECT
+bothEdge => count.OUTPUTSELECT
+bothEdge => count.OUTPUTSELECT
+bothEdge => count.OUTPUTSELECT
+bothEdge => count.OUTPUTSELECT
+bothEdge => count.OUTPUTSELECT
+bothEdge => count.OUTPUTSELECT
+bothEdge => count.OUTPUTSELECT
+bothEdge => count.OUTPUTSELECT
+clk_Para <= clk_Para~reg0.DB_MAX_OUTPUT_PORT_TYPE
+
+

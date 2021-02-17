@@ -1,0 +1,758 @@
+L 1 "..\..\User\SEGGER\SEGGER_SYSVIEW_Config_NoOS.c"
+N/*********************************************************************
+N*                SEGGER Microcontroller GmbH & Co. KG                *
+N*                        The Embedded Experts                        *
+N**********************************************************************
+N*                                                                    *
+N*       (c) 2015 - 2016  SEGGER Microcontroller GmbH & Co. KG        *
+N*                                                                    *
+N*       www.segger.com     Support: support@segger.com               *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SEGGER SystemView * Real-time application analysis           *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N* All rights reserved.                                               *
+N*                                                                    *
+N* SEGGER strongly recommends to not make any changes                 *
+N* to or modify the source code of this software in order to stay     *
+N* compatible with the RTT protocol and J-Link.                       *
+N*                                                                    *
+N* Redistribution and use in source and binary forms, with or         *
+N* without modification, are permitted provided that the following    *
+N* conditions are met:                                                *
+N*                                                                    *
+N* o Redistributions of source code must retain the above copyright   *
+N*   notice, this list of conditions and the following disclaimer.    *
+N*                                                                    *
+N* o Redistributions in binary form must reproduce the above          *
+N*   copyright notice, this list of conditions and the following      *
+N*   disclaimer in the documentation and/or other materials provided  *
+N*   with the distribution.                                           *
+N*                                                                    *
+N* o Neither the name of SEGGER Microcontroller GmbH & Co. KG         *
+N*   nor the names of its contributors may be used to endorse or      *
+N*   promote products derived from this software without specific     *
+N*   prior written permission.                                        *
+N*                                                                    *
+N* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+N* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+N* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+N* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+N* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+N* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+N* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+N* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+N* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+N* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+N* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+N* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+N* DAMAGE.                                                            *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SystemView version: V2.40a                                    *
+N*                                                                    *
+N**********************************************************************
+N-------------------------- END-OF-HEADER -----------------------------
+N
+NFile    : SEGGER_SYSVIEW_Config_NoOS.c
+NPurpose : Sample setup configuration of SystemView without an OS.
+NRevision: $Rev: 3734 $
+N*/
+N#include "SEGGER_SYSVIEW.h"
+L 1 "..\..\User\SEGGER\SEGGER_SYSVIEW.h" 1
+N/*********************************************************************
+N*                SEGGER Microcontroller GmbH & Co. KG                *
+N*                        The Embedded Experts                        *
+N**********************************************************************
+N*                                                                    *
+N*       (c) 2015 - 2016  SEGGER Microcontroller GmbH & Co. KG        *
+N*                                                                    *
+N*       www.segger.com     Support: support@segger.com               *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SEGGER SystemView * Real-time application analysis           *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N* All rights reserved.                                               *
+N*                                                                    *
+N* SEGGER strongly recommends to not make any changes                 *
+N* to or modify the source code of this software in order to stay     *
+N* compatible with the RTT protocol and J-Link.                       *
+N*                                                                    *
+N* Redistribution and use in source and binary forms, with or         *
+N* without modification, are permitted provided that the following    *
+N* conditions are met:                                                *
+N*                                                                    *
+N* o Redistributions of source code must retain the above copyright   *
+N*   notice, this list of conditions and the following disclaimer.    *
+N*                                                                    *
+N* o Redistributions in binary form must reproduce the above          *
+N*   copyright notice, this list of conditions and the following      *
+N*   disclaimer in the documentation and/or other materials provided  *
+N*   with the distribution.                                           *
+N*                                                                    *
+N* o Neither the name of SEGGER Microcontroller GmbH & Co. KG         *
+N*   nor the names of its contributors may be used to endorse or      *
+N*   promote products derived from this software without specific     *
+N*   prior written permission.                                        *
+N*                                                                    *
+N* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+N* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+N* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+N* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+N* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+N* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+N* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+N* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+N* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+N* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+N* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+N* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+N* DAMAGE.                                                            *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SystemView version: V2.40a                                    *
+N*                                                                    *
+N**********************************************************************
+N-------------------------- END-OF-HEADER -----------------------------
+NFile    : SEGGER_SYSVIEW.h
+NPurpose : System visualization API.
+NRevision: $Rev: 3807 $
+N*/
+N
+N#ifndef SEGGER_SYSVIEW_H
+N#define SEGGER_SYSVIEW_H
+N
+N/*********************************************************************
+N*
+N*       #include Section
+N*
+N**********************************************************************
+N*/
+N
+N#include "SEGGER.h"
+L 1 "..\..\User\SEGGER\SEGGER.h" 1
+N/*********************************************************************
+N*                SEGGER Microcontroller GmbH & Co. KG                *
+N*                        The Embedded Experts                        *
+N**********************************************************************
+N*                                                                    *
+N*       (c) 2015 - 2016  SEGGER Microcontroller GmbH & Co. KG        *
+N*                                                                    *
+N*       www.segger.com     Support: support@segger.com               *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SEGGER SystemView * Real-time application analysis           *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N* All rights reserved.                                               *
+N*                                                                    *
+N* SEGGER strongly recommends to not make any changes                 *
+N* to or modify the source code of this software in order to stay     *
+N* compatible with the RTT protocol and J-Link.                       *
+N*                                                                    *
+N* Redistribution and use in source and binary forms, with or         *
+N* without modification, are permitted provided that the following    *
+N* conditions are met:                                                *
+N*                                                                    *
+N* o Redistributions of source code must retain the above copyright   *
+N*   notice, this list of conditions and the following disclaimer.    *
+N*                                                                    *
+N* o Redistributions in binary form must reproduce the above          *
+N*   copyright notice, this list of conditions and the following      *
+N*   disclaimer in the documentation and/or other materials provided  *
+N*   with the distribution.                                           *
+N*                                                                    *
+N* o Neither the name of SEGGER Microcontroller GmbH & Co. KG         *
+N*   nor the names of its contributors may be used to endorse or      *
+N*   promote products derived from this software without specific     *
+N*   prior written permission.                                        *
+N*                                                                    *
+N* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+N* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+N* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+N* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+N* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+N* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+N* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+N* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+N* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+N* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+N* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+N* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+N* DAMAGE.                                                            *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SystemView version: V2.40a                                    *
+N*                                                                    *
+N**********************************************************************
+N----------------------------------------------------------------------
+NFile    : SEGGER.h
+NPurpose : Global types etc & general purpose utility functions
+N---------------------------END-OF-HEADER------------------------------
+N*/
+N
+N#ifndef SEGGER_H            // Guard against multiple inclusion
+N#define SEGGER_H
+N
+N#include "Global.h"         // Type definitions: U8, U16, U32, I8, I16, I32
+L 1 "..\..\User\SEGGER\Global.h" 1
+N/*********************************************************************
+N*                SEGGER Microcontroller GmbH & Co. KG                *
+N*                        The Embedded Experts                        *
+N**********************************************************************
+N*                                                                    *
+N*       (c) 2015 - 2016  SEGGER Microcontroller GmbH & Co. KG        *
+N*                                                                    *
+N*       www.segger.com     Support: support@segger.com               *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SEGGER SystemView * Real-time application analysis           *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N* All rights reserved.                                               *
+N*                                                                    *
+N* SEGGER strongly recommends to not make any changes                 *
+N* to or modify the source code of this software in order to stay     *
+N* compatible with the RTT protocol and J-Link.                       *
+N*                                                                    *
+N* Redistribution and use in source and binary forms, with or         *
+N* without modification, are permitted provided that the following    *
+N* conditions are met:                                                *
+N*                                                                    *
+N* o Redistributions of source code must retain the above copyright   *
+N*   notice, this list of conditions and the following disclaimer.    *
+N*                                                                    *
+N* o Redistributions in binary form must reproduce the above          *
+N*   copyright notice, this list of conditions and the following      *
+N*   disclaimer in the documentation and/or other materials provided  *
+N*   with the distribution.                                           *
+N*                                                                    *
+N* o Neither the name of SEGGER Microcontroller GmbH & Co. KG         *
+N*   nor the names of its contributors may be used to endorse or      *
+N*   promote products derived from this software without specific     *
+N*   prior written permission.                                        *
+N*                                                                    *
+N* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+N* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+N* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+N* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+N* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+N* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+N* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+N* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+N* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+N* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+N* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+N* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+N* DAMAGE.                                                            *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SystemView version: V2.40a                                    *
+N*                                                                    *
+N**********************************************************************
+N----------------------------------------------------------------------
+NFile    : Global.h
+NPurpose : Global types
+N          In case your application already has a Global.h, you should
+N          merge the files. In order to use Segger code, the types
+N          U8, U16, U32, I8, I16, I32 need to be defined in Global.h;
+N          additional definitions do not hurt.
+N---------------------------END-OF-HEADER------------------------------
+N*/
+N
+N#ifndef GLOBAL_H            // Guard against multiple inclusion
+N#define GLOBAL_H
+N
+N#define U8    unsigned char
+N#define U16   unsigned short
+N#define U32   unsigned long
+N#define I8    signed char
+N#define I16   signed short
+N#define I32   signed long
+N
+N#ifdef _WIN32
+S  //
+S  // Microsoft VC6 compiler related
+S  //
+S  #define U64   unsigned __int64
+S  #define U128  unsigned __int128
+S  #define I64   __int64
+S  #define I128  __int128
+S  #if _MSC_VER <= 1200
+S    #define U64_C(x) x##UI64
+S  #else
+S    #define U64_C(x) x##ULL
+S  #endif
+N#else 
+N  //
+N  // C99 compliant compiler
+N  //
+N  #define U64   unsigned long long
+N  #define I64   signed long long
+N  #define U64_C(x) x##ULL
+N#endif
+N
+N#endif                      // Avoid multiple inclusion
+N
+N/*************************** End of file ****************************/
+L 68 "..\..\User\SEGGER\SEGGER.h" 2
+N
+N#if defined(__cplusplus)
+X#if 0L
+Sextern "C" {     /* Make sure we have C-declarations in C++ programs */
+N#endif
+N
+N/*********************************************************************
+N*
+N*       Keywords/specifiers
+N*
+N**********************************************************************
+N*/
+N
+N#ifndef INLINE
+N  #ifdef _WIN32
+S    //
+S    // Microsoft VC6 and newer.
+S    // Force inlining without cost checking.
+S    //
+S    #define INLINE  __forceinline
+N  #else
+N    #if (defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__) || defined(__RX) || defined(__ICCRX__))
+X    #if (0L || 1L || 0L || 0L || 0L)
+N      //
+N      // Other known compilers.
+N      //
+N      #define INLINE  inline
+N    #else
+S      //
+S      // Unknown compilers.
+S      //
+S      #define INLINE
+N    #endif
+N  #endif
+N#endif
+N
+N/*********************************************************************
+N*
+N*       Function-like macros
+N*
+N**********************************************************************
+N*/
+N
+N#define SEGGER_COUNTOF(a)          (sizeof((a))/sizeof((a)[0]))
+N#define SEGGER_MIN(a,b)            (((a) < (b)) ? (a) : (b))
+N#define SEGGER_MAX(a,b)            (((a) > (b)) ? (a) : (b))
+N
+N/*********************************************************************
+N*
+N*       Types
+N*
+N**********************************************************************
+N*/
+N
+Ntypedef struct {
+N  char *pBuffer;
+N  int   BufferSize;
+N  int   Cnt;
+N} SEGGER_BUFFER_DESC;
+N
+Ntypedef struct {
+N  int  CacheLineSize;                                // 0: No Cache. Most Systems such as ARM9 use a 32 bytes cache line size.
+N  void (*pfDMB)       (void);                        // Optional DMB function for Data Memory Barrier to make sure all memory operations are completed.
+N  void (*pfClean)     (void *p, unsigned NumBytes);  // Optional clean function for cached memory.
+N  void (*pfInvalidate)(void *p, unsigned NumBytes);  // Optional invalidate function for cached memory.
+N} SEGGER_CACHE_CONFIG;
+N
+N/*********************************************************************
+N*
+N*       Utility functions
+N*
+N**********************************************************************
+N*/
+N
+Nvoid SEGGER_ARM_memcpy   (void *pDest, const void *pSrc, int NumBytes);
+Nvoid SEGGER_memcpy       (void *pDest, const void *pSrc, int NumBytes);
+Nvoid SEGGER_memxor       (void *pDest, const void *pSrc, unsigned NumBytes);
+Nvoid SEGGER_StoreChar    (SEGGER_BUFFER_DESC *p, char c);
+Nvoid SEGGER_PrintUnsigned(SEGGER_BUFFER_DESC *pBufferDesc, U32 v, unsigned Base, int NumDigits);
+Xvoid SEGGER_PrintUnsigned(SEGGER_BUFFER_DESC *pBufferDesc, unsigned long v, unsigned Base, int NumDigits);
+Nvoid SEGGER_PrintInt     (SEGGER_BUFFER_DESC *pBufferDesc, I32 v, unsigned Base, unsigned NumDigits);
+Xvoid SEGGER_PrintInt     (SEGGER_BUFFER_DESC *pBufferDesc, signed long v, unsigned Base, unsigned NumDigits);
+Nint  SEGGER_snprintf     (char *pBuffer, int BufferSize, const char *sFormat, ...);
+N
+N
+N#if defined(__cplusplus)
+X#if 0L
+S}                /* Make sure we have C-declarations in C++ programs */
+N#endif
+N
+N#endif                      // Avoid multiple inclusion
+N
+N/*************************** End of file ****************************/
+L 75 "..\..\User\SEGGER\SEGGER_SYSVIEW.h" 2
+N
+N#ifdef __cplusplus
+Sextern "C" {
+N#endif
+N
+N
+N/*********************************************************************
+N*
+N*       Defines, fixed
+N*
+N**********************************************************************
+N*/
+N
+N#define SEGGER_SYSVIEW_VERSION        21000
+N
+N#define SEGGER_SYSVIEW_INFO_SIZE      9   // Minimum size, which has to be reserved for a packet. 1-2 byte of message type, 0-2  byte of payload length, 1-5 bytes of timestamp.
+N#define SEGGER_SYSVIEW_QUANTA_U32     5   // Maximum number of bytes to encode a U32, should be reserved for each 32-bit value in a packet.
+N
+N#define SEGGER_SYSVIEW_LOG            (0u)
+N#define SEGGER_SYSVIEW_WARNING        (1u)
+N#define SEGGER_SYSVIEW_ERROR          (2u)
+N#define SEGGER_SYSVIEW_FLAG_APPEND    (1u << 6)
+N
+N#define SEGGER_SYSVIEW_PREPARE_PACKET(p)  (p) + 4
+N//
+N// SystemView events. First 32 IDs from 0 .. 31 are reserved for these
+N//
+N#define   SYSVIEW_EVTID_NOP                0  // Dummy packet.
+N#define   SYSVIEW_EVTID_OVERFLOW           1
+N#define   SYSVIEW_EVTID_ISR_ENTER          2
+N#define   SYSVIEW_EVTID_ISR_EXIT           3
+N#define   SYSVIEW_EVTID_TASK_START_EXEC    4
+N#define   SYSVIEW_EVTID_TASK_STOP_EXEC     5
+N#define   SYSVIEW_EVTID_TASK_START_READY   6
+N#define   SYSVIEW_EVTID_TASK_STOP_READY    7
+N#define   SYSVIEW_EVTID_TASK_CREATE        8
+N#define   SYSVIEW_EVTID_TASK_INFO          9
+N#define   SYSVIEW_EVTID_TRACE_START       10
+N#define   SYSVIEW_EVTID_TRACE_STOP        11
+N#define   SYSVIEW_EVTID_SYSTIME_CYCLES    12
+N#define   SYSVIEW_EVTID_SYSTIME_US        13
+N#define   SYSVIEW_EVTID_SYSDESC           14
+N#define   SYSVIEW_EVTID_USER_START        15
+N#define   SYSVIEW_EVTID_USER_STOP         16
+N#define   SYSVIEW_EVTID_IDLE              17
+N#define   SYSVIEW_EVTID_ISR_TO_SCHEDULER  18
+N#define   SYSVIEW_EVTID_TIMER_ENTER       19
+N#define   SYSVIEW_EVTID_TIMER_EXIT        20
+N#define   SYSVIEW_EVTID_STACK_INFO        21
+N#define   SYSVIEW_EVTID_MODULEDESC        22
+N
+N#define   SYSVIEW_EVTID_INIT              24
+N#define   SYSVIEW_EVTID_NAME_RESOURCE     25
+N#define   SYSVIEW_EVTID_PRINT_FORMATTED   26
+N#define   SYSVIEW_EVTID_NUMMODULES        27
+N#define   SYSVIEW_EVTID_END_CALL          28
+N#define   SYSVIEW_EVTID_TASK_TERMINATE    29
+N
+N#define   SYSVIEW_EVTID_EX                31
+N//
+N// Event masks to disable/enable events
+N//
+N#define   SYSVIEW_EVTMASK_NOP               (1 << SYSVIEW_EVTID_NOP)
+N#define   SYSVIEW_EVTMASK_OVERFLOW          (1 << SYSVIEW_EVTID_OVERFLOW)
+N#define   SYSVIEW_EVTMASK_ISR_ENTER         (1 << SYSVIEW_EVTID_ISR_ENTER)
+N#define   SYSVIEW_EVTMASK_ISR_EXIT          (1 << SYSVIEW_EVTID_ISR_EXIT)
+N#define   SYSVIEW_EVTMASK_TASK_START_EXEC   (1 << SYSVIEW_EVTID_TASK_START_EXEC)
+N#define   SYSVIEW_EVTMASK_TASK_STOP_EXEC    (1 << SYSVIEW_EVTID_TASK_STOP_EXEC)
+N#define   SYSVIEW_EVTMASK_TASK_START_READY  (1 << SYSVIEW_EVTID_TASK_START_READY)
+N#define   SYSVIEW_EVTMASK_TASK_STOP_READY   (1 << SYSVIEW_EVTID_TASK_STOP_READY)
+N#define   SYSVIEW_EVTMASK_TASK_CREATE       (1 << SYSVIEW_EVTID_TASK_CREATE)
+N#define   SYSVIEW_EVTMASK_TASK_INFO         (1 << SYSVIEW_EVTID_TASK_INFO)
+N#define   SYSVIEW_EVTMASK_TRACE_START       (1 << SYSVIEW_EVTID_TRACE_START)
+N#define   SYSVIEW_EVTMASK_TRACE_STOP        (1 << SYSVIEW_EVTID_TRACE_STOP)
+N#define   SYSVIEW_EVTMASK_SYSTIME_CYCLES    (1 << SYSVIEW_EVTID_SYSTIME_CYCLES)
+N#define   SYSVIEW_EVTMASK_SYSTIME_US        (1 << SYSVIEW_EVTID_SYSTIME_US)
+N#define   SYSVIEW_EVTMASK_SYSDESC           (1 << SYSVIEW_EVTID_SYSDESC)
+N#define   SYSVIEW_EVTMASK_USER_START        (1 << SYSVIEW_EVTID_USER_START)
+N#define   SYSVIEW_EVTMASK_USER_STOP         (1 << SYSVIEW_EVTID_USER_STOP)
+N#define   SYSVIEW_EVTMASK_IDLE              (1 << SYSVIEW_EVTID_IDLE)
+N#define   SYSVIEW_EVTMASK_ISR_TO_SCHEDULER  (1 << SYSVIEW_EVTID_ISR_TO_SCHEDULER)
+N#define   SYSVIEW_EVTMASK_TIMER_ENTER       (1 << SYSVIEW_EVTID_TIMER_ENTER)
+N#define   SYSVIEW_EVTMASK_TIMER_EXIT        (1 << SYSVIEW_EVTID_TIMER_EXIT)
+N#define   SYSVIEW_EVTMASK_STACK_INFO        (1 << SYSVIEW_EVTID_STACK_INFO)
+N#define   SYSVIEW_EVTMASK_MODULEDESC        (1 << SYSVIEW_EVTID_MODULEDESC)
+N
+N#define   SYSVIEW_EVTMASK_INIT              (1 << SYSVIEW_EVTID_INIT)
+N#define   SYSVIEW_EVTMASK_NAME_RESOURCE     (1 << SYSVIEW_EVTID_NAME_RESOURCE)
+N#define   SYSVIEW_EVTMASK_PRINT_FORMATTED   (1 << SYSVIEW_EVTID_PRINT_FORMATTED)
+N#define   SYSVIEW_EVTMASK_NUMMODULES        (1 << SYSVIEW_EVTID_NUMMODULES)
+N#define   SYSVIEW_EVTMASK_END_CALL          (1 << SYSVIEW_EVTID_END_CALL)
+N#define   SYSVIEW_EVTMASK_TASK_TERMINATE    (1 << SYSVIEW_EVTID_TASK_TERMINATE)
+N
+N#define   SYSVIEW_EVTMASK_EX                (1 << SYSVIEW_EVTID_EX)
+N
+N#define   SYSVIEW_EVTMASK_ALL_INTERRUPTS    ( SYSVIEW_EVTMASK_ISR_ENTER           \
+N                                            | SYSVIEW_EVTMASK_ISR_EXIT            \
+N                                            | SYSVIEW_EVTMASK_ISR_TO_SCHEDULER)
+X#define   SYSVIEW_EVTMASK_ALL_INTERRUPTS    ( SYSVIEW_EVTMASK_ISR_ENTER                                                       | SYSVIEW_EVTMASK_ISR_EXIT                                                        | SYSVIEW_EVTMASK_ISR_TO_SCHEDULER)
+N#define   SYSVIEW_EVTMASK_ALL_TASKS         ( SYSVIEW_EVTMASK_TASK_START_EXEC     \
+N                                            | SYSVIEW_EVTMASK_TASK_STOP_EXEC      \
+N                                            | SYSVIEW_EVTMASK_TASK_START_READY    \
+N                                            | SYSVIEW_EVTMASK_TASK_STOP_READY     \
+N                                            | SYSVIEW_EVTMASK_TASK_CREATE         \
+N                                            | SYSVIEW_EVTMASK_TASK_INFO           \
+N                                            | SYSVIEW_EVTMASK_STACK_INFO          \
+N                                            | SYSVIEW_EVTMASK_TASK_TERMINATE)
+X#define   SYSVIEW_EVTMASK_ALL_TASKS         ( SYSVIEW_EVTMASK_TASK_START_EXEC                                                 | SYSVIEW_EVTMASK_TASK_STOP_EXEC                                                  | SYSVIEW_EVTMASK_TASK_START_READY                                                | SYSVIEW_EVTMASK_TASK_STOP_READY                                                 | SYSVIEW_EVTMASK_TASK_CREATE                                                     | SYSVIEW_EVTMASK_TASK_INFO                                                       | SYSVIEW_EVTMASK_STACK_INFO                                                      | SYSVIEW_EVTMASK_TASK_TERMINATE)
+N
+N/*********************************************************************
+N*
+N*       Structures
+N*
+N**********************************************************************
+N*/
+N
+Ntypedef struct {
+N  U32          TaskID;
+X  unsigned long          TaskID;
+N  const char*  sName;
+N  U32          Prio;
+X  unsigned long          Prio;
+N  U32          StackBase;
+X  unsigned long          StackBase;
+N  U32          StackSize;
+X  unsigned long          StackSize;
+N} SEGGER_SYSVIEW_TASKINFO;
+N
+Ntypedef struct SEGGER_SYSVIEW_MODULE_STRUCT SEGGER_SYSVIEW_MODULE;
+N
+Nstruct SEGGER_SYSVIEW_MODULE_STRUCT {
+N  const char*                   sModule;
+N        U32                     NumEvents;
+X        unsigned long                     NumEvents;
+N        U32                     EventOffset;
+X        unsigned long                     EventOffset;
+N        void                    (*pfSendModuleDesc)(void);
+N        SEGGER_SYSVIEW_MODULE*  pNext;
+N};
+N
+Ntypedef void (SEGGER_SYSVIEW_SEND_SYS_DESC_FUNC)(void);
+N
+N/*********************************************************************
+N*
+N*       API functions
+N*
+N**********************************************************************
+N*/
+N
+Ntypedef struct {
+N  U64  (*pfGetTime)      (void);
+X  unsigned long long  (*pfGetTime)      (void);
+N  void (*pfSendTaskList) (void);
+N} SEGGER_SYSVIEW_OS_API;
+N
+N/*********************************************************************
+N*
+N*       Control and initialization functions
+N*/
+Nvoid SEGGER_SYSVIEW_Init                          (U32 SysFreq, U32 CPUFreq, const SEGGER_SYSVIEW_OS_API *pOSAPI, SEGGER_SYSVIEW_SEND_SYS_DESC_FUNC pfSendSysDesc);
+Xvoid SEGGER_SYSVIEW_Init                          (unsigned long SysFreq, unsigned long CPUFreq, const SEGGER_SYSVIEW_OS_API *pOSAPI, SEGGER_SYSVIEW_SEND_SYS_DESC_FUNC pfSendSysDesc);
+Nvoid SEGGER_SYSVIEW_SetRAMBase                    (U32 RAMBaseAddress);
+Xvoid SEGGER_SYSVIEW_SetRAMBase                    (unsigned long RAMBaseAddress);
+Nvoid SEGGER_SYSVIEW_Start                         (void);
+Nvoid SEGGER_SYSVIEW_Stop                          (void);
+Nvoid SEGGER_SYSVIEW_GetSysDesc                    (void);
+Nvoid SEGGER_SYSVIEW_SendTaskList                  (void);
+Nvoid SEGGER_SYSVIEW_SendTaskInfo                  (const SEGGER_SYSVIEW_TASKINFO* pInfo);
+Nvoid SEGGER_SYSVIEW_SendSysDesc                   (const char* sSysDesc);
+N
+N/*********************************************************************
+N*
+N*       Event recording functions
+N*/
+Nvoid SEGGER_SYSVIEW_RecordVoid                    (unsigned EventId);
+Nvoid SEGGER_SYSVIEW_RecordU32                     (unsigned EventId, U32 Para0);
+Xvoid SEGGER_SYSVIEW_RecordU32                     (unsigned EventId, unsigned long Para0);
+Nvoid SEGGER_SYSVIEW_RecordU32x2                   (unsigned EventId, U32 Para0, U32 Para1);
+Xvoid SEGGER_SYSVIEW_RecordU32x2                   (unsigned EventId, unsigned long Para0, unsigned long Para1);
+Nvoid SEGGER_SYSVIEW_RecordU32x3                   (unsigned EventId, U32 Para0, U32 Para1, U32 Para2);
+Xvoid SEGGER_SYSVIEW_RecordU32x3                   (unsigned EventId, unsigned long Para0, unsigned long Para1, unsigned long Para2);
+Nvoid SEGGER_SYSVIEW_RecordU32x4                   (unsigned EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3);
+Xvoid SEGGER_SYSVIEW_RecordU32x4                   (unsigned EventId, unsigned long Para0, unsigned long Para1, unsigned long Para2, unsigned long Para3);
+Nvoid SEGGER_SYSVIEW_RecordU32x5                   (unsigned EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4);
+Xvoid SEGGER_SYSVIEW_RecordU32x5                   (unsigned EventId, unsigned long Para0, unsigned long Para1, unsigned long Para2, unsigned long Para3, unsigned long Para4);
+Nvoid SEGGER_SYSVIEW_RecordU32x6                   (unsigned EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5);
+Xvoid SEGGER_SYSVIEW_RecordU32x6                   (unsigned EventId, unsigned long Para0, unsigned long Para1, unsigned long Para2, unsigned long Para3, unsigned long Para4, unsigned long Para5);
+Nvoid SEGGER_SYSVIEW_RecordU32x7                   (unsigned EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5, U32 Para6);
+Xvoid SEGGER_SYSVIEW_RecordU32x7                   (unsigned EventId, unsigned long Para0, unsigned long Para1, unsigned long Para2, unsigned long Para3, unsigned long Para4, unsigned long Para5, unsigned long Para6);
+Nvoid SEGGER_SYSVIEW_RecordU32x8                   (unsigned EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5, U32 Para6, U32 Para7);
+Xvoid SEGGER_SYSVIEW_RecordU32x8                   (unsigned EventId, unsigned long Para0, unsigned long Para1, unsigned long Para2, unsigned long Para3, unsigned long Para4, unsigned long Para5, unsigned long Para6, unsigned long Para7);
+Nvoid SEGGER_SYSVIEW_RecordU32x9                   (unsigned EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5, U32 Para6, U32 Para7, U32 Para8);
+Xvoid SEGGER_SYSVIEW_RecordU32x9                   (unsigned EventId, unsigned long Para0, unsigned long Para1, unsigned long Para2, unsigned long Para3, unsigned long Para4, unsigned long Para5, unsigned long Para6, unsigned long Para7, unsigned long Para8);
+Nvoid SEGGER_SYSVIEW_RecordU32x10                  (unsigned EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5, U32 Para6, U32 Para7, U32 Para8, U32 Para9);
+Xvoid SEGGER_SYSVIEW_RecordU32x10                  (unsigned EventId, unsigned long Para0, unsigned long Para1, unsigned long Para2, unsigned long Para3, unsigned long Para4, unsigned long Para5, unsigned long Para6, unsigned long Para7, unsigned long Para8, unsigned long Para9);
+Nvoid SEGGER_SYSVIEW_RecordString                  (unsigned EventId, const char* pString);
+Nvoid SEGGER_SYSVIEW_RecordSystime                 (void);
+Nvoid SEGGER_SYSVIEW_RecordEnterISR                (void);
+Nvoid SEGGER_SYSVIEW_RecordExitISR                 (void);
+Nvoid SEGGER_SYSVIEW_RecordExitISRToScheduler      (void);
+Nvoid SEGGER_SYSVIEW_RecordEnterTimer              (U32 TimerId);
+Xvoid SEGGER_SYSVIEW_RecordEnterTimer              (unsigned long TimerId);
+Nvoid SEGGER_SYSVIEW_RecordExitTimer               (void);
+Nvoid SEGGER_SYSVIEW_RecordEndCall                 (unsigned EventID);
+Nvoid SEGGER_SYSVIEW_RecordEndCallU32              (unsigned EventID, U32 Para0);
+Xvoid SEGGER_SYSVIEW_RecordEndCallU32              (unsigned EventID, unsigned long Para0);
+N
+Nvoid SEGGER_SYSVIEW_OnIdle                        (void);
+Nvoid SEGGER_SYSVIEW_OnTaskCreate                  (unsigned TaskId);
+Nvoid SEGGER_SYSVIEW_OnTaskTerminate               (unsigned TaskId);
+Nvoid SEGGER_SYSVIEW_OnTaskStartExec               (unsigned TaskId);
+Nvoid SEGGER_SYSVIEW_OnTaskStopExec                (void);
+Nvoid SEGGER_SYSVIEW_OnTaskStartReady              (unsigned TaskId);
+Nvoid SEGGER_SYSVIEW_OnTaskStopReady               (unsigned TaskId, unsigned Cause);
+Nvoid SEGGER_SYSVIEW_OnUserStart                   (unsigned UserId);       // Start of user defined event (such as a subroutine to profile)
+Nvoid SEGGER_SYSVIEW_OnUserStop                    (unsigned UserId);       // Start of user defined event
+N
+Nvoid SEGGER_SYSVIEW_NameResource                  (U32 ResourceId, const char* sName);
+Xvoid SEGGER_SYSVIEW_NameResource                  (unsigned long ResourceId, const char* sName);
+N
+Nint  SEGGER_SYSVIEW_SendPacket                    (U8* pPacket, U8* pPayloadEnd, unsigned EventId);
+Xint  SEGGER_SYSVIEW_SendPacket                    (unsigned char* pPacket, unsigned char* pPayloadEnd, unsigned EventId);
+N
+N/*********************************************************************
+N*
+N*       Event parameter encoding functions
+N*/
+NU8*  SEGGER_SYSVIEW_EncodeU32                     (U8* pPayload, unsigned Value);
+Xunsigned char*  SEGGER_SYSVIEW_EncodeU32                     (unsigned char* pPayload, unsigned Value);
+NU8*  SEGGER_SYSVIEW_EncodeData                    (U8* pPayload, const char* pSrc, unsigned Len);
+Xunsigned char*  SEGGER_SYSVIEW_EncodeData                    (unsigned char* pPayload, const char* pSrc, unsigned Len);
+NU8*  SEGGER_SYSVIEW_EncodeString                  (U8* pPayload, const char* s, unsigned MaxLen);
+Xunsigned char*  SEGGER_SYSVIEW_EncodeString                  (unsigned char* pPayload, const char* s, unsigned MaxLen);
+NU8*  SEGGER_SYSVIEW_EncodeId                      (U8* pPayload, unsigned Id);
+Xunsigned char*  SEGGER_SYSVIEW_EncodeId                      (unsigned char* pPayload, unsigned Id);
+NU32  SEGGER_SYSVIEW_ShrinkId                      (U32 Id);
+Xunsigned long  SEGGER_SYSVIEW_ShrinkId                      (unsigned long Id);
+N
+N
+N/*********************************************************************
+N*
+N*       Middleware module registration
+N*/
+Nvoid SEGGER_SYSVIEW_RegisterModule                (SEGGER_SYSVIEW_MODULE* pModule);
+Nvoid SEGGER_SYSVIEW_RecordModuleDescription       (const SEGGER_SYSVIEW_MODULE* pModule, const char* sDescription);
+Nvoid SEGGER_SYSVIEW_SendModule                    (U8 ModuleId);
+Xvoid SEGGER_SYSVIEW_SendModule                    (unsigned char ModuleId);
+Nvoid SEGGER_SYSVIEW_SendModuleDescription         (void);
+Nvoid SEGGER_SYSVIEW_SendNumModules                (void);
+N
+N/*********************************************************************
+N*
+N*       printf-Style functions
+N*/
+N#ifndef SEGGER_SYSVIEW_EXCLUDE_PRINTF // Define in project to avoid warnings about variable parameter list
+Nvoid SEGGER_SYSVIEW_PrintfHostEx                  (const char* s, U32 Options, ...);
+Xvoid SEGGER_SYSVIEW_PrintfHostEx                  (const char* s, unsigned long Options, ...);
+Nvoid SEGGER_SYSVIEW_PrintfTargetEx                (const char* s, U32 Options, ...);
+Xvoid SEGGER_SYSVIEW_PrintfTargetEx                (const char* s, unsigned long Options, ...);
+Nvoid SEGGER_SYSVIEW_PrintfHost                    (const char* s, ...);
+Nvoid SEGGER_SYSVIEW_PrintfTarget                  (const char* s, ...);
+Nvoid SEGGER_SYSVIEW_WarnfHost                     (const char* s, ...);
+Nvoid SEGGER_SYSVIEW_WarnfTarget                   (const char* s, ...);
+Nvoid SEGGER_SYSVIEW_ErrorfHost                    (const char* s, ...);
+Nvoid SEGGER_SYSVIEW_ErrorfTarget                  (const char* s, ...);
+N#endif
+N
+Nvoid SEGGER_SYSVIEW_Print                         (const char* s);
+Nvoid SEGGER_SYSVIEW_Warn                          (const char* s);
+Nvoid SEGGER_SYSVIEW_Error                         (const char* s);
+N
+N/*********************************************************************
+N*
+N*       Run-time configuration functions
+N*/
+Nvoid SEGGER_SYSVIEW_EnableEvents                  (U32 EnableMask);
+Xvoid SEGGER_SYSVIEW_EnableEvents                  (unsigned long EnableMask);
+Nvoid SEGGER_SYSVIEW_DisableEvents                 (U32 DisableMask);
+Xvoid SEGGER_SYSVIEW_DisableEvents                 (unsigned long DisableMask);
+N
+N/*********************************************************************
+N*
+N*       Application-provided functions
+N*/
+Nvoid SEGGER_SYSVIEW_Conf                          (void);
+NU32  SEGGER_SYSVIEW_X_GetTimestamp                (void);
+Xunsigned long  SEGGER_SYSVIEW_X_GetTimestamp                (void);
+NU32  SEGGER_SYSVIEW_X_GetInterruptId              (void);
+Xunsigned long  SEGGER_SYSVIEW_X_GetInterruptId              (void);
+N
+N#ifdef __cplusplus
+S}
+N#endif
+N
+N#endif
+N
+N/*************************** End of file ****************************/
+L 65 "..\..\User\SEGGER\SEGGER_SYSVIEW_Config_NoOS.c" 2
+N
+N// SystemcoreClock can be used in most CMSIS compatible projects.
+N// In non-CMSIS projects define SYSVIEW_CPU_FREQ.
+Nextern unsigned int SystemCoreClock;
+N
+N/*********************************************************************
+N*
+N*       Defines, configurable
+N*
+N**********************************************************************
+N*/
+N// The application name to be displayed in SystemViewer
+N#define SYSVIEW_APP_NAME        "Demo Application"
+N
+N// The target device name
+N#define SYSVIEW_DEVICE_NAME     "Cortex-M3"
+N
+N// Frequency of the timestamp. Must match SEGGER_SYSVIEW_Conf.h
+N#define SYSVIEW_TIMESTAMP_FREQ  (SystemCoreClock)
+N
+N// System Frequency. SystemcoreClock is used in most CMSIS compatible projects.
+N#define SYSVIEW_CPU_FREQ        (SystemCoreClock)
+N
+N// The lowest RAM address used for IDs (pointers)
+N#define SYSVIEW_RAM_BASE        (0x20000000)
+N
+N/********************************************************************* 
+N*
+N*       _cbSendSystemDesc()
+N*
+N*  Function description
+N*    Sends SystemView description strings.
+N*/
+Nstatic void _cbSendSystemDesc(void) {
+N  SEGGER_SYSVIEW_SendSysDesc("N="SYSVIEW_APP_NAME",D="SYSVIEW_DEVICE_NAME);
+X  SEGGER_SYSVIEW_SendSysDesc("N=" "Demo Application" ",D=" "Cortex-M3");
+N  SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick");
+N}
+N
+N/*********************************************************************
+N*
+N*       Global functions
+N*
+N**********************************************************************
+N*/
+Nvoid SEGGER_SYSVIEW_Conf(void) {
+N  SEGGER_SYSVIEW_Init(SYSVIEW_TIMESTAMP_FREQ, SYSVIEW_CPU_FREQ, 
+X  SEGGER_SYSVIEW_Init((SystemCoreClock), (SystemCoreClock), 
+N                      0, _cbSendSystemDesc);
+N  SEGGER_SYSVIEW_SetRAMBase(SYSVIEW_RAM_BASE);
+X  SEGGER_SYSVIEW_SetRAMBase((0x20000000));
+N}
+N
+N/*************************** End of file ****************************/

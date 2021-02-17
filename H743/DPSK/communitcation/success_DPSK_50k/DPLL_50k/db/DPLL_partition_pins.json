@@ -1,0 +1,29 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "syn_o",
+					"strict" : false
+				},
+				{
+					"name" : "clk1",
+					"strict" : false
+				},
+				{
+					"name" : "rst_n_i",
+					"strict" : false
+				},
+				{
+					"name" : "clk_12",
+					"strict" : false
+				},
+				{
+					"name" : "data_i",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

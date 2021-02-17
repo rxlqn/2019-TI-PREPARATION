@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project>
+    <FileVersion>2.0</FileVersion> 
+
+    <ProjectPath>C:\Users\rxlqn\Desktop\preparation\H743\DPSK\communitcation\modulation_3.0_bark - ¸±±¾\</ProjectPath> 
+
+    <ProjectName>LED</ProjectName>     <ProjectNature>C</ProjectNature> 
+
+    <HAL_Driver>C:\Users\rxlqn\STM32Cube\Repository\STM32Cube_FW_H7_V1.4.0\</HAL_Driver>
+    <CMSIS>..\Drivers\CMSIS</CMSIS> 
+    <Toolchain>MDK-ARM</Toolchain>
+    <Toolversion>5</Toolversion>
+    <Version>0</Version>
+
+    <configs>
+<config>
+    <name>LED</name>	 
+    <device>STM32H743VITx</device>		 
+    <cpucore></cpucore>
+    <fpu>DP</fpu>  
+    <memories>   
+        <memory name="DTCMRAM" access="xrw" start="0x20000000" size="128" />
+        <memory name="RAM_D1" access="xrw" start="0x24000000" size="512" />
+        <memory name="RAM_D2" access="xrw" start="0x30000000" size="288" />
+        <memory name="RAM_D3" access="xrw" start="0x38000000" size="64" />
+        <memory name="ITCMRAM" access="xrw" start="0x00000000" size="64" />
+        <memory name="FLASH" access="rx" start="0x8000000" size="2048" />
+        </memories>
+    <startup>C:\Users\rxlqn\STM32Cube\Repository\STM32Cube_FW_H7_V1.4.0\..\Drivers\CMSIS\Device\ST\STM32H7xx\Source\Templates\gcc\startup_stm32h743xx.s</startup>      
+
+    <heapSize>0x200</heapSize>
+    <stackSize>0x400</stackSize>
+
+    <cpuclock>200</cpuclock>
+    <board>custom</board>
+
+    <optimization></optimization>
+    <icfloc></icfloc>
+
+    <Aincludes>
+        <include></include>
+
+        </Aincludes>
+    <Adefines>
+        </Adefines>  
+    <Cdefines>
+        <define>USE_HAL_DRIVER</define>
+        <define>STM32H743xx</define>
+        <define>USE_HAL_DRIVER</define>
+        <define>STM32H743xx</define>
+        </Cdefines>
+    <Ldefines>
+        </Ldefines>
+    <definestoremove>
+        <Adefines>
+            </Adefines>
+        <Cdefines>
+            <define>USE_FULL_LL_DRIVER</define>
+            <define>MBEDTLS_CONFIG_FILE=&lt;mbedtls_config.h&gt;</define>
+            <define>USE_FULL_ASSERT=1U</define>
+            </Cdefines> 
+        <Ldefines>
+            </Ldefines> 
+        </definestoremove>
+
+    <inctoremove>
+        <Aincludes>
+            <include></include>
+            </Aincludes>
+        <Cincludes>
+            </Cincludes>
+        </inctoremove>
+    <filestoremove>
+        <file>
+            <name>..\Drivers\CMSIS\Device\ST\STM32H7xx\Source\Templates\arm\startup_stm32h743xx.s</name>
+            </file>
+        </filestoremove>
+    <Cincludes>
+        <include>..\Inc</include>
+        <include>..\Drivers\STM32H7xx_HAL_Driver\Inc</include>
+        <include>..\Drivers\STM32H7xx_HAL_Driver\Inc\Legacy</include>
+        <include>..\Drivers\CMSIS\Device\ST\STM32H7xx\Include</include>
+        <include>..\Drivers\CMSIS\Include</include>
+
+        </Cincludes>
+    </config>
+        </configs> 
+
+    <underRoot>false</underRoot>
+     <group>
+        <name>Drivers</name> 
+        <group>
+            <name>STM32H7xx_HAL_Driver</name>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_adc.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_adc_ex.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash_ex.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_gpio.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_hsem.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma_ex.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mdma.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr_ex.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c.c</name>
+
+                </file>
+            <file>
+                <name>../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c</name>
+
+                </file>
+            </group>
+        <group>
+            <name>CMSIS</name>
+            <file>
+                <name>../Src/system_stm32h7xx.c</name>
+                </file>
+            </group>
+        </group>   
+    <group>
+        <name>Application</name>
+        <group>
+            <name>User</name>
+     
+                <file>
+                    <name>..\Src\main.c</name>
+                    </file>
+                <file>
+                    <name>..\Src\gpio.c</name>
+                    </file>
+                <file>
+                    <name>..\Src\adc.c</name>
+                    </file>
+                <file>
+                    <name>..\Src\dma.c</name>
+                    </file>
+                <file>
+                    <name>..\Src\tim.c</name>
+                    </file>
+                <file>
+                    <name>..\Src\usart.c</name>
+                    </file>
+                <file>
+                    <name>..\Src\stm32h7xx_it.c</name>
+                    </file>
+                <file>
+                    <name>..\Src\stm32h7xx_hal_msp.c</name>
+                    </file>
+
+            </group> 
+        </group>
+
+    </Project>
+

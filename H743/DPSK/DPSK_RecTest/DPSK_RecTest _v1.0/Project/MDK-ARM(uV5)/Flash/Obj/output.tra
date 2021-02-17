@@ -1,0 +1,41 @@
+*** Creating Trace Output File '.\Flash\Obj\output.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '".\flash\obj\main.o"'
+### List of Objects: adding '".\flash\obj\bsp_key.o"'
+### List of Objects: adding '".\flash\obj\bsp_led.o"'
+### List of Objects: adding '".\flash\obj\bsp_timer.o"'
+### List of Objects: adding '".\flash\obj\bsp_uart_fifo.o"'
+### List of Objects: adding '".\flash\obj\stm32f4xx_it.o"'
+### List of Objects: adding '".\flash\obj\stm32f4xx_assert.o"'
+### List of Objects: adding '".\flash\obj\bsp.o"'
+### List of Objects: adding '".\flash\obj\bsp_user_lib.o"'
+### List of Objects: adding '".\flash\obj\bsp_modbus.o"'
+### List of Objects: adding '".\flash\obj\dualtimermasterslave_md.o"'
+### List of Objects: adding '".\flash\obj\startup_stm32f40_41xxx.o"'
+### List of Objects: adding '".\flash\obj\stm32f4xx_rcc.o"'
+### List of Objects: adding '".\flash\obj\stm32f4xx_syscfg.o"'
+### List of Objects: adding '".\flash\obj\misc.o"'
+### List of Objects: adding '".\flash\obj\stm32f4xx_gpio.o"'
+### List of Objects: adding '".\flash\obj\stm32f4xx_usart.o"'
+### List of Objects: adding '".\flash\obj\stm32f4xx_tim.o"'
+### List of Objects: adding '".\flash\obj\stm32f4xx_adc.o"'
+### List of Objects: adding '".\flash\obj\stm32f4xx_dma.o"'
+### List of Objects: adding '".\flash\obj\system_stm32f4xx.o"'
+### List of Objects: adding '"..\..\Libraries\CMSIS\Lib\ARM\arm_cortexM4lf_math.lib"'
+### ADS-LD Command completed:
+--cpu Cortex-M4.fp ".\flash\obj\main.o" ".\flash\obj\bsp_key.o" ".\flash\obj\bsp_led.o" ".\flash\obj\bsp_timer.o" ".\flash\obj\bsp_uart_fifo.o" ".\flash\obj\stm32f4xx_it.o" ".\flash\obj\stm32f4xx_assert.o" ".\flash\obj\bsp.o" ".\flash\obj\bsp_user_lib.o" ".\flash\obj\bsp_modbus.o" ".\flash\obj\dualtimermasterslave_md.o" ".\flash\obj\startup_stm32f40_41xxx.o" ".\flash\obj\stm32f4xx_rcc.o" ".\flash\obj\stm32f4xx_syscfg.o" ".\flash\obj\misc.o" ".\flash\obj\stm32f4xx_gpio.o" ".\flash\obj\stm32f4xx_usart.o" ".\flash\obj\stm32f4xx_tim.o" ".\flash\obj\stm32f4xx_adc.o" ".\flash\obj\stm32f4xx_dma.o" ".\flash\obj\system_stm32f4xx.o" C:\Users\Gin\Desktop\Stm32f407DspLab\Libraries\CMSIS\Lib\ARM\arm_cortexM4lf_math.lib 
+--library_type=microlib --strict --scatter ".\Flash\Obj\output.sct" 
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\Flash\List\output.map" -o .\Flash\Obj\output.axf### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: '.\Flash\Obj\output.axf'
+### ADS-LD Command File: '.\Flash\Obj\output.lnp'
+### Checking for dirty Components...
+### Creating CmdFile '.\Flash\Obj\output.lnp', Handle=0x000008C0
+### Writing '.lnp' file
+### ADS-LD Command file '.\Flash\Obj\output.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.

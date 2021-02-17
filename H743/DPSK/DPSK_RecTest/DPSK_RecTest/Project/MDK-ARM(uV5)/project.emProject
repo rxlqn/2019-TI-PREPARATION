@@ -1,0 +1,105 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution Name="project" target="8" version="2">
+  <project Name="project">
+    <configuration
+      Name="Common"
+      arm_architecture="v7EM"
+      arm_core_type="Cortex-M4"
+      arm_endian="Little"
+      arm_fp_abi="Hard"
+      arm_fpu_type="FPv4-SP-D16"
+      arm_simulator_memory_simulation_parameter="RX 08000000,00100000,FFFFFFFF;RWX 20000000,00020000,CDCDCDCD"
+      arm_target_device_name="STM32F407IG"
+      arm_target_interface_type="SWD"
+      debug_start_from_entry_point_symbol="No"
+      debug_target_connection="J-Link"
+      linker_section_placements_segments="FLASH RX 0x08000000 0x00100000;RAM RWX 0x20000000 0x00020000"
+      post_build_command="cmd /c CopyHex_Flash.bat"
+      post_build_command_wd="$(ProjectDir)"
+      project_directory=""
+      project_type="Externally Built Executable" />
+    <configuration
+      CMSIS_CORE="Yes"
+      Name="Flash"
+      arm_target_trace_interface_type="SWO"
+      armcc_cl_enable_debug_info="Yes"
+      armcc_cl_optimization_level="None"
+      build_intermediate_directory="./Flash/Obj"
+      build_output_directory="./Flash/Obj"
+      build_output_file_name="./Flash/Obj/output.axf"
+      c_additional_options="-D__MICROLIB;--diag_suppress=870;-O0;--split_sections;-D__MICROLIB;--diag_suppress=870;--split_sections;-g;-D__MICROLIB;--diag_suppress=870;-O0;--split_sections;-D__MICROLIB;--diag_suppress=870;--split_sections;-g;-D__MICROLIB;--diag_suppress=870;-O0;--split_sections;-D__MICROLIB;--diag_suppress=870;--split_sections;-g;-D__MICROLIB;--diag_suppress=870;-O0;--split_sections;-D__MICROLIB;--diag_suppress=870;--split_sections;-g;-D__MICROLIB;--diag_suppress=870;-O0;--split_sections;-D__MICROLIB;--diag_suppress=870;--split_sections;-g;-D__MICROLIB;--diag_suppress=870;-O0;--split_sections;-D__MICROLIB;--diag_suppress=870;--split_sections;-g"
+      c_preprocessor_definitions="USE_STDPERIPH_DRIVER;STM32F40_41xxx;ARM_MATH_CM4"
+      c_user_include_directories="../../Libraries/CMSIS/Include;../../Libraries/CMSIS/Device/ST/STM32F4xx/Include;../../Libraries/STM32F4xx_StdPeriph_Driver/inc;../../User/bsp_stm32f4xx/inc;../../User/bsp_stm32f4xx;../../User;../../User/MiddleWareDrv;../../User/RTT" />
+    <folder Name="User">
+      <file file_name="../../User/main.c" />
+      <file file_name="../../User/ringbuf.c" />
+    </folder>
+    <folder Name="BSP">
+      <file file_name="../../User/bsp_stm32f4xx/src/bsp_key.c" />
+      <file file_name="../../User/bsp_stm32f4xx/src/bsp_led.c" />
+      <file file_name="../../User/bsp_stm32f4xx/src/bsp_timer.c" />
+      <file file_name="../../User/bsp_stm32f4xx/src/bsp_uart_fifo.c" />
+      <file file_name="../../User/bsp_stm32f4xx/stm32f4xx_it.c" />
+      <file file_name="../../User/bsp_stm32f4xx/stm32f4xx_assert.c" />
+      <file file_name="../../User/bsp_stm32f4xx/bsp.c" />
+      <file file_name="../../User/bsp_stm32f4xx/src/bsp_user_lib.c" />
+      <file file_name="../../User/bsp_stm32f4xx/src/bsp_modbus.c" />
+      <file file_name="../../User/MiddleWareDrv/DualTimerMasterSlave_MD.c" />
+      <file file_name="../../User/MiddleWareDrv/DMA_TimerSPI_MD.c" />
+      <file file_name="../../User/MiddleWareDrv/DMA_TimerADC_MD.c" />
+      <file file_name="../../User/MiddleWareDrv/DMA_DAC.c" />
+    </folder>
+    <folder Name="MDK-ARM">
+      <file file_name="../../Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/arm/startup_stm32f40_41xxx.s">
+        <configuration Name="Internal" build_exclude_from_build="Yes" />
+      </file>
+    </folder>
+    <folder Name="StdPeriph_Driver">
+      <file file_name="../../Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rcc.c" />
+      <file file_name="../../Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c" />
+      <file file_name="../../Libraries/STM32F4xx_StdPeriph_Driver/src/misc.c" />
+      <file file_name="../../Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c" />
+      <file file_name="../../Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_usart.c" />
+      <file file_name="../../Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c" />
+      <file file_name="../../Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_adc.c" />
+      <file file_name="../../Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma.c" />
+      <file file_name="../../Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c" />
+      <file file_name="../../Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dac.c" />
+    </folder>
+    <folder Name="CMSIS">
+      <file file_name="../../User/bsp_stm32f4xx/system_stm32f4xx.c" />
+    </folder>
+    <folder Name="DSP_Lib">
+      <file file_name="../../Libraries/CMSIS/Lib/ARM/arm_cortexM4lf_math.lib">
+        <configuration Name="External Keil ARMCC" file_type="Library" />
+      </file>
+    </folder>
+    <folder Name="Doc">
+      <file file_name="../../Doc/03.&#xe5;&#xbc;&#x80;&#xe5;&#x8f;&#x91;&#xe7;&#x8e;&#xaf;&#xe5;&#xa2;&#x83;&#xe8;&#xaf;&#xb4;&#xe6;&#x98;&#x8e;.txt" />
+      <file file_name="../../Doc/04.STM32F407IGT6&#xe5;&#xbc;&#x95;&#xe8;&#x84;&#x9a;&#xe5;&#xae;&#x9a;&#xe4;&#xb9;&#x89;(&#xe5;&#x8e;&#x9f;&#xe5;&#xa7;&#x8b;&#xe5;&#xae;&#x9a;&#xe4;&#xb9;&#x89;).txt" />
+      <file file_name="../../Doc/05.GPIO&#xe5;&#x88;&#x86;&#xe9;&#x85;&#x8d;&#xe8;&#xa1;&#xa8;(&#xe6;&#x8c;&#x89;GPIO&#xe6;&#xac;&#xa1;&#xe5;&#xba;&#x8f;&#xe6;&#x8e;&#x92;&#xe5;&#x88;&#x97;).txt" />
+      <file file_name="../../Doc/06.GPIO&#xe5;&#x88;&#x86;&#xe9;&#x85;&#x8d;&#xe8;&#xa1;&#xa8;(&#xe6;&#x8c;&#x89;&#xe5;&#x8a;&#x9f;&#xe8;&#x83;&#xbd;&#xe6;&#x8e;&#x92;&#xe5;&#x88;&#x97;).txt" />
+    </folder>
+    <folder Name="RTT">
+      <file file_name="../../User/RTT/SEGGER_RTT.c" />
+      <file file_name="../../User/RTT/SEGGER_RTT_printf.c" />
+      <file file_name="../../User/SEGGER/SEGGER_SYSVIEW.c" />
+      <file file_name="../../User/SEGGER/SEGGER_SYSVIEW_Config_NoOS.c" />
+    </folder>
+    <folder Name="::CMSIS" />
+    <configuration
+      Name="External Keil ARMCC"
+      asm_additional_options="--pd;&quot;__MICROLIB SETA 1&quot;"
+      c_additional_options="-D__MICROLIB;--diag_suppress=870;-O0;--split_sections;-g"
+      linker_additional_options="--ro_base=0x8000000;--rw_base=0x20000000;--first=__Vectors;--library_type=microlib" />
+  </project>
+  <configuration
+    Name="External Keil ARMCC"
+    build_generic_options_file_name="$(StudioDir)/targets/ARMCC_build_options.xml"
+    hidden="Yes"
+    macros="KEIL_TOOLKIT_DIR=C:/Keil_v5/ARM" />
+  <configuration
+    Name="Flash"
+    arm_target_trace_interface_type="SWO"
+    inherited_configurations="External Keil ARMCC" />
+</solution>

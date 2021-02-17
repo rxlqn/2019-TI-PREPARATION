@@ -1,0 +1,57 @@
+module cntroldivfreq(
+	rst_n_i	,
+	clk32_i	,
+	clk_d1_i	,
+	clk_d2_i	,
+	pd_before_i	,
+	pd_after_i	,
+	clk_i_o			,
+	clk_q_o		
+);
+	input		wire			rst_n_i			;
+	input		wire			clk32_i			;
+	input		wire			clk_d1_i		;
+	input		wire			clk_d2_i		;
+	input		wire			pd_before_i	;
+	input		wire			pd_after_i	;
+	output	reg				clk_i_o			;
+	output	reg				clk_q_o			;
+	
+	wire 		gate_open ,gate_close	;
+	wire		clk_in		;
+	reg	[3:0]			cnt	; 
+	wire	add_cnt	, end_cnt	;
+	
+	assign	gate_open 	= (~pd_before_i) & clk_d1_i	;
+	assign	gate_close 	=	pd_after_i & clk_d2_i				;
+	assign	clk_in			=	gate_open | gate_close		;
+	
+	always @(posedge clk32_i or negedge rst_n_i)
+	begin
+		if(!rst_n_i)
+			cnt	<= 3'd0	;
+		else	
+		if(add_cnt)
+			begin
+				if(end_cnt)
+					cnt		<=	3'd0	;
+				else
+					cnt		<= cnt	+	1'b1	;
+			end 
+		else
+			;
+	end
+	
+	assign	add_cnt	= rst_n_i	&& clk_in	;
+	assign	end_cnt	=	add_cnt && cnt == 5 -1 ; 
+	
+	always @(posedge clk32_i or negedge rst_n_i)
+	begin
+		if(!rst_n_i)begin
+			clk_i_o <= 1'b0 ;
+			clk_q_o	<= 1'b0	;end
+		else begin
+			clk_i_o	<= ~cnt[2]	;
+			clk_q_o	<= cnt[2]		;end
+	end
+endmodule 

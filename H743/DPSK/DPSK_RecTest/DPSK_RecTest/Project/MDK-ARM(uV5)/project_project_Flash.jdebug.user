@@ -1,0 +1,24 @@
+GraphedExpression="u32ADC", DisplayFormat=DISPLAY_FORMAT_DEC
+OpenDocument="arm_biquad_cascade_df1_f32.c", FilePath="C:\CMSIS\CMSIS_Setup_V4.xx\CMSIS\DSP_Lib\Source\ARM\..\FilteringFunctions\arm_biquad_cascade_df1_f32.c", Line=0
+OpenDocument="main.c", FilePath="C:\Users\Gin\Desktop\DPSK_RecTest\Project\MDK-ARM(uV5)\../../User\main.c", Line=403
+OpenToolbar="Debug", Floating=0, x=0, y=0
+OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=2, w=355, h=102, FilterBarShown=0
+OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=3, w=355, h=102, FilterBarShown=0, FilteredItems=[]
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=0, w=355, h=125, FilterBarShown=0, ExecCountersShown=0
+OpenWindow="Source", x=0, y=0, w=0, h=0, FilterBarShown=0, ExecCountersShown=0
+OpenWindow="Memory 1", DockArea=BOTTOM, x=3, y=0, w=496, h=348, FilterBarShown=0, EditorAddress=0x0
+OpenWindow="Watched Data", DockArea=RIGHT, x=0, y=1, w=355, h=254, FilterBarShown=0
+OpenWindow="Functions", DockArea=LEFT, x=0, y=2, w=329, h=220, FilterBarShown=1
+OpenWindow="Timeline", DockArea=BOTTOM, x=1, y=0, w=330, h=348, FilterBarShown=0
+OpenWindow="Code Profile", DockArea=LEFT, x=0, y=0, w=329, h=197, FilterBarShown=1
+OpenWindow="Instruction Trace", DockArea=LEFT, x=0, y=1, w=329, h=167, FilterBarShown=0
+OpenWindow="Data Graph", DockArea=BOTTOM, x=2, y=0, w=787, h=348, FilterBarShown=0, VisibleTab=1, SamplingFreq=10 kHz, ClearEvent=RESUME
+OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=304, h=348, FilterBarShown=0
+TableHeader="Watched Data", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh"], ColWidths=[84;49;103;119]
+TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[191;125;58;72;148]
+TableHeader="Call Stack", SortCol="Function", SortOrder="ASCENDING", VisibleCols=["Function";"Stack Info";"Source";"PC";"Return Address"], ColWidths=[153;129;166;95;112]
+TableHeader="Code Profile", SortCol="Source Coverage", SortOrder="DESCENDING", VisibleCols=["Source Coverage";"File / Function";"Inst. Coverage";"Run Count";"Fetch Count";"Load"], ColWidths=[161;135;154;55;65;58]
+TableHeader="DataGraphSamples", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time                    ";" u32ADC"], ColWidths=[100;58;73]
+TableHeader="Data Graph", SortCol="Expression", SortOrder="DESCENDING", VisibleCols=["Expression";"Type";"Value";"Min";"Max";"Average";"# Changes";"Min. Change";"Max. Change"], ColWidths=[100;118;65;54;54;79;93;107;117]
+TableHeader="tableWidgetSamples", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Channel 0"], ColWidths=[84;119;126]
+TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[161;153;91]

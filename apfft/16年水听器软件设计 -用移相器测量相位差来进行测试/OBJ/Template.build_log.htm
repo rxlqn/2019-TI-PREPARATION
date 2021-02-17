@@ -1,0 +1,45 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Project:</h2>
+E:\程序及资料\大三下\水声\16年水听器软件设计 -用移相器测量相位差来进行测试\USER\Template.uvproj
+Project File Date:  09/27/2016
+
+<h2>Output:</h2>
+Build target 'Template'
+compiling my_fft.c...
+..\DSP_Lib\Include\core_cm4.h(112): warning:  #1215-D: #warning directive: "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
+        #warning "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
+..\HARDWARE\my_fft.h(9): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\HARDWARE\my_fft.c(55): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                result=phase1-phase2+5.0*fs/40000.0;//由于通道扫描有时间差，为了给信号的建立留足够的时间，这里会有些延时，这个延时应该跟频率有关系，正比，10k我就给的5.3
+..\HARDWARE\my_fft.c: 3 warnings, 0 errors
+linking...
+Program Size: Code=18850 RO-data=35406 RW-data=8276 ZI-data=42796  
+FromELF: creating hex file...
+"..\OBJ\Template.axf" - 0 Error(s), 3 Warning(s).
+Load "..\\OBJ\\Template.axf" 
+Erase Done.
+Programming Done.
+Verify OK.
+Application running ...
+</pre>
+</body>
+</html>
+ __FPU_PRESENT)"
+..\HARDWARE\my_fft.h(9): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\HARDWARE\my_fft.c(54): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                result=phase1-phase2+5.1*fs/40000.0;//由于通道扫描有时间差，为了给信号的建立留足够的时间，这里会有些延时，这个延时应该跟频率有关系，正比，10k我就给的5.3
+..\HARDWARE\my_fft.c: 3 warnings, 0 errors
+linking...
+Program Size: Code=18770 RO-data=35406 RW-data=8276 ZI-data=42796  
+FromELF: creating hex file...
+"..\OBJ\Template.axf" - 0 Error(s), 8 Warning(s).
+Load "..\\OBJ\\Template.axf" 
+Erase Done.
+Programming Done.
+Verify OK.
+Application running ...

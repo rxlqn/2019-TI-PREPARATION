@@ -1,0 +1,2 @@
+硬件SPI 不能加HAL_Delay
+时间太长

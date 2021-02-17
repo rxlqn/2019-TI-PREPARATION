@@ -1,0 +1,20 @@
+http://www.keil.com/support/docs/814.htm
+
+CAUSE
+When the μVision Debugger loads an executable program, it creates a memory map using the program and data segments from the program. Code segments are marked as executable while data segments are marked as read/write. All other memory is unmapped and is, therefore, not marked for any type of access.
+
+The μVision Debugger checks that all memory accesses are made to objects that are defined in your C program. For any access that is outside of a defined C object, the μVision debugger generates an error 65: access violation message.
+
+By default, the debugger allows only memory accesses to valid data objects. This is useful for finding uninitialized or incorrectly initialized pointers, for example. Usually, there is a programming error when you try to access unexpected locations.
+
+RESOLUTION
+Enable memory regions for absolute memory accesses using the MAP debugger command or the Debug - Memory Map dialog. Define all the memory ranges that your program is permitted to access. Ensure that you set the permissions (read, write, execute) for each range to match your actual hardware.
+
+You may put the required MAP commands into a debugger INI file that can be entered under Project -> Options for Target -> Debug -> Initialization file. For example, the content of such a file may be:
+
+
+当μVision调试器加载可执行程序时，它使用程序和程序中的数据段创建存储器映射。 代码段被标记为可执行，而数据段被标记为读/写。 所有其他内存未映射，因此未标记为任何类型的访问。
+
+μVision调试器检查是否对在C程序中定义的对象进行了所有存储器访问。 对于定义的C对象外的任何访问，μVision调试器将生成错误65：访问冲突消息。
+
+默认情况下，调试器仅允许对有效数据对象的存储器访问。 例如，这对于查找未初始化或不正确初始化的指针很有用。 通常，当您尝试访问意外的位置时，会出现编程错误。

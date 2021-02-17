@@ -1,0 +1,137 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: μVision V5.27.1.0
+Copyright (C) 2019 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: 1 1, 1, LIC=6XJMM-X6CXY-16GQV-PUVV0-2WWZS-7A2YF
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Professional  Version: 5.27.1.0
+Toolchain Path:  C:\Program1\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 6 (build 750)
+Assembler:       Armasm.exe V5.06 update 6 (build 750)
+Linker/Locator:  ArmLink.exe V5.06 update 6 (build 750)
+Library Manager: ArmAr.exe V5.06 update 6 (build 750)
+Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
+CPU DLL:         SARMCM3.DLL V5.27.1.0
+Dialog DLL:      DARMSTM.DLL V1.68.0.0
+Target DLL:      Segger\JL2CM3.dll V2.99.35.0
+Dialog DLL:      TARMSTM.DLL V1.66.0.0
+ 
+<h2>Project:</h2>
+C:\Users\rxlqn\Desktop\preparation\H743\DPSK\DPSK_RecTest\DPSK_RecTest\Project\MDK-ARM(uV5)\project.uvprojx
+Project File Date:  07/27/2019
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Program1\ARM\ARMCC\Bin'
+Build target 'Flash'
+compiling bsp_timer.c...
+compiling bsp_key.c...
+compiling bsp_uart_fifo.c...
+compiling main.c...
+..\..\User\main.c(177): warning:  #177-D: variable "i"  was declared but never referenced
+  	uint32_t i;
+..\..\User\main.c(235): warning:  #177-D: variable "i"  was declared but never referenced
+  	uint32_t i;
+..\..\User\main.c(253): warning:  #177-D: variable "NVIC_InitStructure"  was declared but never referenced
+    NVIC_InitTypeDef NVIC_InitStructure;
+..\..\User\main.c(256): warning:  #177-D: variable "GPIO_InitStructure"  was declared but never referenced
+    GPIO_InitTypeDef GPIO_InitStructure;
+..\..\User\main.c(436): warning:  #177-D: variable "j"  was declared but never referenced
+  	uint32_t i,j;
+..\..\User\main.c(440): warning:  #550-D: variable "SyncState"  was set but never used
+  	uint32_t SyncState = 0;
+..\..\User\main.c(441): warning:  #177-D: variable "u32Code"  was declared but never referenced
+  	uint32_t u32Code = 0;
+..\..\User\main.c(650): warning:  #177-D: variable "ucKeyCode"  was declared but never referenced
+  	uint8_t ucKeyCode;		/* 按键代码 */
+..\..\User\main.c(652): warning:  #177-D: variable "u32Index"  was declared but never referenced
+  	uint32_t u32Sum = 0, i,  u32Index = 0, u32Len = 0;
+..\..\User\main.c(900): warning:  #1-D: last line of file ends without a newline
+   
+..\..\User\main.c(43): warning:  #177-D: function "PrintfLogo"  was declared but never referenced
+  static void PrintfLogo(void);
+..\..\User\main.c(44): warning:  #177-D: function "DSP_ABS"  was declared but never referenced
+  static void DSP_ABS(void);
+..\..\User\main.c(45): warning:  #177-D: function "DSP_Add"  was declared but never referenced
+  static void DSP_Add(void);
+..\..\User\main.c(46): warning:  #177-D: function "DSP_DotProduct"  was declared but never referenced
+  static void DSP_DotProduct(void);
+..\..\User\main.c(47): warning:  #177-D: function "DSP_Multiplication"  was declared but never referenced
+  static void DSP_Multiplication(void);
+..\..\User\main.c: 15 warnings, 0 errors
+compiling stm32f4xx_assert.c...
+compiling ringbuf.c...
+compiling stm32f4xx_it.c...
+compiling bsp_led.c...
+assembling startup_stm32f40_41xxx.s...
+compiling bsp.c...
+compiling bsp_user_lib.c...
+compiling bsp_modbus.c...
+compiling DMA_DAC.c...
+..\..\User\MiddleWareDrv\DMA_DAC.c(20): warning:  #177-D: variable "i"  was declared but never referenced
+   		int i;
+..\..\User\MiddleWareDrv\DMA_DAC.c(57): warning:  #177-D: variable "i"  was declared but never referenced
+   		int i;
+..\..\User\MiddleWareDrv\DMA_DAC.c(289): warning:  #1-D: last line of file ends without a newline
+  }
+..\..\User\MiddleWareDrv\DMA_DAC.c: 3 warnings, 0 errors
+compiling DMA_TimerADC_MD.c...
+..\..\User\MiddleWareDrv\DMA_TimerADC_MD.c(63): warning:  #177-D: variable "i"  was declared but never referenced
+   		int i;
+..\..\User\MiddleWareDrv\DMA_TimerADC_MD.c: 1 warning, 0 errors
+compiling DualTimerMasterSlave_MD.c...
+..\..\User\MiddleWareDrv\DualTimerMasterSlave_MD.c(8): warning:  #177-D: variable "NVIC_InitStructure"  was declared but never referenced
+    NVIC_InitTypeDef NVIC_InitStructure;
+..\..\User\MiddleWareDrv\DualTimerMasterSlave_MD.c: 1 warning, 0 errors
+compiling stm32f4xx_rcc.c...
+compiling DMA_TimerSPI_MD.c...
+compiling stm32f4xx_syscfg.c...
+compiling misc.c...
+compiling stm32f4xx_usart.c...
+compiling stm32f4xx_adc.c...
+compiling stm32f4xx_gpio.c...
+compiling stm32f4xx_spi.c...
+compiling stm32f4xx_dma.c...
+compiling stm32f4xx_tim.c...
+compiling SEGGER_SYSVIEW_Config_NoOS.c...
+compiling SEGGER_RTT_printf.c...
+compiling SEGGER_RTT.c...
+compiling SEGGER_SYSVIEW.c...
+compiling system_stm32f4xx.c...
+compiling stm32f4xx_dac.c...
+linking...
+Program Size: Code=10356 RO-data=2652 RW-data=120 ZI-data=102628  
+FromELF: creating hex file...
+After Build - User command #1: CopyHex_Flash.bat
+C:\Users\rxlqn\Desktop\preparation\H743\DPSK\DPSK_RecTest\DPSK_RecTest\Project\MDK-ARM(uV5)>copy Flash\Obj\output.hex ..\output(mdk).hex 
+已复制         1 个文件。
+".\Flash\Obj\output.axf" - 0 Error(s), 20 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.5.5.1.pack
+                ARM.CMSIS.5.5.1
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 5.2.0
+
+Package Vendor: Keil
+                http://www.keil.com/pack/Keil.STM32F4xx_DFP.2.5.0.pack
+                Keil.STM32F4xx_DFP.2.5.0
+                STMicroelectronics STM32F4 Series Device Support, Drivers and Examples
+
+<h2>Collection of Component include folders:</h2>
+  .\RTE\_Flash
+  C:\Program1\ARM\PACK\ARM\CMSIS\5.5.1\CMSIS\Core\Include
+  C:\Program1\ARM\PACK\Keil\STM32F4xx_DFP\2.5.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:5.2.0
+Build Time Elapsed:  00:00:07
+</pre>
+</body>
+</html>

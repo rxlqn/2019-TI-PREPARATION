@@ -1,0 +1,2223 @@
+L 1 "..\..\User\RTT\SEGGER_RTT.c"
+N/*********************************************************************
+N*               SEGGER MICROCONTROLLER GmbH & Co. KG                 *
+N*       Solutions for real time microcontroller applications         *
+N**********************************************************************
+N*                                                                    *
+N*       (c) 2014 - 2016  SEGGER Microcontroller GmbH & Co. KG        *
+N*                                                                    *
+N*       www.segger.com     Support: support@segger.com               *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SEGGER RTT * Real Time Transfer for embedded targets         *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N* All rights reserved.                                               *
+N*                                                                    *
+N* * This software may in its unmodified form be freely redistributed *
+N*   in source form.                                                  *
+N* * The source code may be modified, provided the source code        *
+N*   retains the above copyright notice, this list of conditions and  *
+N*   the following disclaimer.                                        *
+N* * Modified versions of this software in source or linkable form    *
+N*   may not be distributed without prior consent of SEGGER.          *
+N* * This software may only be used for communication with SEGGER     *
+N*   J-Link debug probes.                                             *
+N*                                                                    *
+N* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+N* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+N* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+N* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+N* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+N* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+N* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+N* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+N* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+N* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+N* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+N* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+N* DAMAGE.                                                            *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       RTT version: 5.10u                                           *
+N*                                                                    *
+N**********************************************************************
+N---------------------------END-OF-HEADER------------------------------
+NFile    : SEGGER_RTT.c
+NPurpose : Implementation of SEGGER real-time transfer (RTT) which
+N          allows real-time communication on targets which support
+N          debugger memory accesses while the CPU is running.
+N
+NAdditional information:
+N          Type "int" is assumed to be 32-bits in size
+N          H->T    Host to target communication
+N          T->H    Target to host communication
+N
+N          RTT channel 0 is always present and reserved for Terminal usage.
+N          Name is fixed to "Terminal"
+N
+N----------------------------------------------------------------------
+N*/
+N
+N#include "SEGGER_RTT.h"
+L 1 "..\..\User\RTT\SEGGER_RTT.h" 1
+N/*********************************************************************
+N*               SEGGER MICROCONTROLLER GmbH & Co. KG                 *
+N*       Solutions for real time microcontroller applications         *
+N**********************************************************************
+N*                                                                    *
+N*       (c) 2014 - 2016  SEGGER Microcontroller GmbH & Co. KG        *
+N*                                                                    *
+N*       www.segger.com     Support: support@segger.com               *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SEGGER RTT * Real Time Transfer for embedded targets         *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N* All rights reserved.                                               *
+N*                                                                    *
+N* * This software may in its unmodified form be freely redistributed *
+N*   in source form.                                                  *
+N* * The source code may be modified, provided the source code        *
+N*   retains the above copyright notice, this list of conditions and  *
+N*   the following disclaimer.                                        *
+N* * Modified versions of this software in source or linkable form    *
+N*   may not be distributed without prior consent of SEGGER.          *
+N* * This software may only be used for communication with SEGGER     *
+N*   J-Link debug probes.                                             *
+N*                                                                    *
+N* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+N* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+N* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+N* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+N* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+N* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+N* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+N* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+N* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+N* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+N* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+N* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+N* DAMAGE.                                                            *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       RTT version: 5.10u                                           *
+N*                                                                    *
+N**********************************************************************
+N---------------------------END-OF-HEADER------------------------------
+NFile    : SEGGER_RTT.h
+NPurpose : Implementation of SEGGER real-time transfer which allows
+N          real-time communication on targets which support debugger 
+N          memory accesses while the CPU is running.
+N----------------------------------------------------------------------
+N*/
+N
+N#ifndef SEGGER_RTT_H
+N#define SEGGER_RTT_H
+N
+N#include "SEGGER_RTT_Conf.h"
+L 1 "..\..\User\RTT\SEGGER_RTT_Conf.h" 1
+N/*********************************************************************
+N*               SEGGER MICROCONTROLLER GmbH & Co. KG                 *
+N*       Solutions for real time microcontroller applications         *
+N**********************************************************************
+N*                                                                    *
+N*       (c) 2014 - 2016  SEGGER Microcontroller GmbH & Co. KG        *
+N*                                                                    *
+N*       www.segger.com     Support: support@segger.com               *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       SEGGER RTT * Real Time Transfer for embedded targets         *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N* All rights reserved.                                               *
+N*                                                                    *
+N* * This software may in its unmodified form be freely redistributed *
+N*   in source form.                                                  *
+N* * The source code may be modified, provided the source code        *
+N*   retains the above copyright notice, this list of conditions and  *
+N*   the following disclaimer.                                        *
+N* * Modified versions of this software in source or linkable form    *
+N*   may not be distributed without prior consent of SEGGER.          *
+N* * This software may only be used for communication with SEGGER     *
+N*   J-Link debug probes.                                             *
+N*                                                                    *
+N* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+N* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+N* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+N* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+N* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+N* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+N* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+N* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+N* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+N* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+N* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+N* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+N* DAMAGE.                                                            *
+N*                                                                    *
+N**********************************************************************
+N*                                                                    *
+N*       RTT version: 5.10u                                           *
+N*                                                                    *
+N**********************************************************************
+N----------------------------------------------------------------------
+NFile    : SEGGER_RTT_Conf.h
+NPurpose : Implementation of SEGGER real-time transfer (RTT) which 
+N          allows real-time communication on targets which support 
+N          debugger memory accesses while the CPU is running.
+N---------------------------END-OF-HEADER------------------------------
+N*/
+N
+N#ifndef SEGGER_RTT_CONF_H
+N#define SEGGER_RTT_CONF_H
+N
+N#ifdef __ICCARM__
+S  #include <intrinsics.h>
+N#endif
+N
+N/*********************************************************************
+N*
+N*       Defines, configurable
+N*
+N**********************************************************************
+N*/
+N
+N#define SEGGER_RTT_MAX_NUM_UP_BUFFERS             (2)     // Max. number of up-buffers (T->H) available on this target    (Default: 2)
+N#define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS           (2)     // Max. number of down-buffers (H->T) available on this target  (Default: 2)
+N
+N#define BUFFER_SIZE_UP                            (1024)  // Size of the buffer for terminal output of target, up to host (Default: 1k)
+N#define BUFFER_SIZE_DOWN                          (16)    // Size of the buffer for terminal input to target from host (Usually keyboard input) (Default: 16)
+N
+N#define SEGGER_RTT_PRINTF_BUFFER_SIZE             (64u)    // Size of buffer for RTT printf to bulk-send chars via RTT     (Default: 64)
+N
+N#define SEGGER_RTT_MODE_DEFAULT                   SEGGER_RTT_MODE_NO_BLOCK_SKIP // Mode for pre-initialized terminal channel (buffer 0)
+N
+N//
+N// Target is not allowed to perform other RTT operations while string still has not been stored completely.
+N// Otherwise we would probably end up with a mixed string in the buffer.
+N// If using  RTT from within interrupts, multiple tasks or multi processors, define the SEGGER_RTT_LOCK() and SEGGER_RTT_UNLOCK() function here.
+N//
+N/*********************************************************************
+N*
+N*       RTT lock configuration for SEGGER Embedded Studio, 
+N*       Rowley CrossStudio and GCC
+N*/
+N#if (defined __SES_ARM) || (defined __CROSSWORKS_ARM) || (defined __GNUC__)
+X#if (0L) || (0L) || (0L)
+S  #ifdef __ARM_ARCH_6M__
+S    #define SEGGER_RTT_LOCK() {                                                 \
+S                                    unsigned int LockState;                     \
+S                                  __asm volatile ("mrs   %0, primask  \n\t"     \
+S                                                  "mov   r1, $1     \n\t"       \
+S                                                  "msr   primask, r1  \n\t"     \
+S                                                  : "=r" (LockState)            \
+S                                                  :                             \
+S                                                  : "r1"                        \
+S                                                  );                            
+X    #define SEGGER_RTT_LOCK() {                                                                                     unsigned int LockState;                                                       __asm volatile ("mrs   %0, primask  \n\t"                                                       "mov   r1, $1     \n\t"                                                         "msr   primask, r1  \n\t"                                                       : "=r" (LockState)                                                              :                                                                               : "r1"                                                                          );                            
+S    
+S    #define SEGGER_RTT_UNLOCK()   __asm volatile ("msr   primask, %0  \n\t"     \
+S                                                  :                             \
+S                                                  : "r" (LockState)             \
+S                                                  :                             \
+S                                                  );                            \
+S                                  }                                             
+X    #define SEGGER_RTT_UNLOCK()   __asm volatile ("msr   primask, %0  \n\t"                                                       :                                                                               : "r" (LockState)                                                               :                                                                               );                                                              }                                             
+S                                  
+S  #elif (defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__))
+S    #define SEGGER_RTT_LOCK() {                                                 \
+S                                    unsigned int LockState;                     \
+S                                  __asm volatile ("mrs   %0, basepri  \n\t"     \
+S                                                  "mov   r1, $128     \n\t"     \
+S                                                  "msr   basepri, r1  \n\t"     \
+S                                                  : "=r" (LockState)            \
+S                                                  :                             \
+S                                                  : "r1"                        \
+S                                                  );                            
+X    #define SEGGER_RTT_LOCK() {                                                                                     unsigned int LockState;                                                       __asm volatile ("mrs   %0, basepri  \n\t"                                                       "mov   r1, $128     \n\t"                                                       "msr   basepri, r1  \n\t"                                                       : "=r" (LockState)                                                              :                                                                               : "r1"                                                                          );                            
+S    
+S    #define SEGGER_RTT_UNLOCK()   __asm volatile ("msr   basepri, %0  \n\t"     \
+S                                                  :                             \
+S                                                  : "r" (LockState)             \
+S                                                  :                             \
+S                                                  );                            \
+S                                  }
+X    #define SEGGER_RTT_UNLOCK()   __asm volatile ("msr   basepri, %0  \n\t"                                                       :                                                                               : "r" (LockState)                                                               :                                                                               );                                                              }
+S  #else
+S    #define SEGGER_RTT_LOCK()  
+S    #define SEGGER_RTT_UNLOCK()
+S  #endif
+N#endif
+N
+N/*********************************************************************
+N*
+N*       RTT lock configuration for IAR EWARM
+N*/
+N#ifdef __ICCARM__
+S  #if (defined (__ARM6M__) && (__CORE__ == __ARM6M__))
+S    #define SEGGER_RTT_LOCK() {                                                 \
+S                                    unsigned int LockState;                     \
+S                                    LockState = __get_PRIMASK();                \
+S                                    __set_PRIMASK(1);                           
+X    #define SEGGER_RTT_LOCK() {                                                                                     unsigned int LockState;                                                         LockState = __get_PRIMASK();                                                    __set_PRIMASK(1);                           
+S                                    
+S    #define SEGGER_RTT_UNLOCK() __set_PRIMASK(LockState);                       \
+S                                  }
+X    #define SEGGER_RTT_UNLOCK() __set_PRIMASK(LockState);                                                         }
+S  #elif ((defined (__ARM7EM__) && (__CORE__ == __ARM7EM__)) || (defined (__ARM7M__) && (__CORE__ == __ARM7M__)))
+S    #define SEGGER_RTT_LOCK() {                                                 \
+S                                    unsigned int LockState;                     \
+S                                    LockState = __get_BASEPRI();                \
+S                                    __set_BASEPRI(128);                           
+X    #define SEGGER_RTT_LOCK() {                                                                                     unsigned int LockState;                                                         LockState = __get_BASEPRI();                                                    __set_BASEPRI(128);                           
+S                                    
+S    #define SEGGER_RTT_UNLOCK() __set_BASEPRI(LockState);                       \
+S                                  }  
+X    #define SEGGER_RTT_UNLOCK() __set_BASEPRI(LockState);                                                         }  
+S  #endif
+N#endif
+N
+N/*********************************************************************
+N*
+N*       RTT lock configuration fallback
+N*/
+N#ifndef   SEGGER_RTT_LOCK
+N  #define SEGGER_RTT_LOCK()                // Lock RTT (nestable)   (i.e. disable interrupts)
+N#endif
+N
+N#ifndef   SEGGER_RTT_UNLOCK
+N  #define SEGGER_RTT_UNLOCK()              // Unlock RTT (nestable) (i.e. enable previous interrupt lock state)
+N#endif
+N
+N#endif
+N/*************************** End of file ****************************/
+L 59 "..\..\User\RTT\SEGGER_RTT.h" 2
+N
+N/*********************************************************************
+N*
+N*       Defines, fixed
+N*
+N**********************************************************************
+N*/
+N
+N/*********************************************************************
+N*
+N*       Types
+N*
+N**********************************************************************
+N*/
+N
+N//
+N// Description for a circular buffer (also called "ring buffer")
+N// which is used as up-buffer (T->H)
+N//
+Ntypedef struct {
+N  const     char*    sName;         // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
+N            char*    pBuffer;       // Pointer to start of buffer
+N            unsigned SizeOfBuffer;  // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
+N            unsigned WrOff;         // Position of next item to be written by either target.
+N  volatile  unsigned RdOff;         // Position of next item to be read by host. Must be volatile since it may be modified by host.
+N            unsigned Flags;         // Contains configuration flags
+N} SEGGER_RTT_BUFFER_UP;
+N
+N//
+N// Description for a circular buffer (also called "ring buffer")
+N// which is used as down-buffer (H->T)
+N//
+Ntypedef struct {
+N  const     char*    sName;         // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
+N            char*    pBuffer;       // Pointer to start of buffer
+N            unsigned SizeOfBuffer;  // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
+N  volatile  unsigned WrOff;         // Position of next item to be written by host. Must be volatile since it may be modified by host.
+N            unsigned RdOff;         // Position of next item to be read by target (down-buffer).
+N            unsigned Flags;         // Contains configuration flags
+N} SEGGER_RTT_BUFFER_DOWN;
+N
+N//
+N// RTT control block which describes the number of buffers available
+N// as well as the configuration for each buffer
+N//
+N//
+Ntypedef struct {
+N  char                    acID[16];                                 // Initialized to "SEGGER RTT"
+N  int                     MaxNumUpBuffers;                          // Initialized to SEGGER_RTT_MAX_NUM_UP_BUFFERS (type. 2)
+N  int                     MaxNumDownBuffers;                        // Initialized to SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (type. 2)
+N  SEGGER_RTT_BUFFER_UP    aUp[SEGGER_RTT_MAX_NUM_UP_BUFFERS];       // Up buffers, transferring information up from target via debug probe to host
+X  SEGGER_RTT_BUFFER_UP    aUp[(2)];       
+N  SEGGER_RTT_BUFFER_DOWN  aDown[SEGGER_RTT_MAX_NUM_DOWN_BUFFERS];   // Down buffers, transferring information down from host via debug probe to target
+X  SEGGER_RTT_BUFFER_DOWN  aDown[(2)];   
+N} SEGGER_RTT_CB;
+N
+N/*********************************************************************
+N*
+N*       Global data
+N*
+N**********************************************************************
+N*/
+Nextern SEGGER_RTT_CB _SEGGER_RTT;
+N
+N/*********************************************************************
+N*
+N*       RTT API functions
+N*
+N**********************************************************************
+N*/
+N#ifdef __cplusplus
+S  extern "C" {
+N#endif
+Nint          SEGGER_RTT_AllocDownBuffer  (const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
+Nint          SEGGER_RTT_AllocUpBuffer    (const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
+Nint          SEGGER_RTT_ConfigUpBuffer   (unsigned BufferIndex, const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
+Nint          SEGGER_RTT_ConfigDownBuffer (unsigned BufferIndex, const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags);
+Nint          SEGGER_RTT_GetKey           (void);
+Nunsigned     SEGGER_RTT_HasData          (unsigned BufferIndex);
+Nint          SEGGER_RTT_HasKey           (void);
+Nvoid         SEGGER_RTT_Init             (void);
+Nunsigned     SEGGER_RTT_Read             (unsigned BufferIndex,       void* pBuffer, unsigned BufferSize);
+Nunsigned     SEGGER_RTT_ReadNoLock       (unsigned BufferIndex,       void* pData,   unsigned BufferSize);
+Nint          SEGGER_RTT_SetNameDownBuffer(unsigned BufferIndex, const char* sName);
+Nint          SEGGER_RTT_SetNameUpBuffer  (unsigned BufferIndex, const char* sName);
+Nint          SEGGER_RTT_WaitKey          (void);
+Nunsigned     SEGGER_RTT_Write            (unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
+Nunsigned     SEGGER_RTT_WriteNoLock      (unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
+Nunsigned     SEGGER_RTT_WriteSkipNoLock  (unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
+Nunsigned     SEGGER_RTT_WriteString      (unsigned BufferIndex, const char* s);
+N//
+N// Function macro for performance optimization
+N//
+N#define      SEGGER_RTT_HASDATA(n)       (_SEGGER_RTT.aDown[n].WrOff - _SEGGER_RTT.aDown[n].RdOff)
+N
+N/*********************************************************************
+N*
+N*       RTT "Terminal" API functions
+N*
+N**********************************************************************
+N*/
+Nint     SEGGER_RTT_SetTerminal        (char TerminalId);
+Nint     SEGGER_RTT_TerminalOut        (char TerminalId, const char* s);
+N
+N/*********************************************************************
+N*
+N*       RTT printf functions (require SEGGER_RTT_printf.c)
+N*
+N**********************************************************************
+N*/
+Nint SEGGER_RTT_printf(unsigned BufferIndex, const char * sFormat, ...);
+N
+N#ifdef __cplusplus
+S  }
+N#endif
+N
+N/*********************************************************************
+N*
+N*       Defines
+N*
+N**********************************************************************
+N*/
+N
+N//
+N// Operating modes. Define behavior if buffer is full (not enough space for entire message)
+N//
+N#define SEGGER_RTT_MODE_NO_BLOCK_SKIP         (0U)     // Skip. Do not block, output nothing. (Default)
+N#define SEGGER_RTT_MODE_NO_BLOCK_TRIM         (1U)     // Trim: Do not block, output as much as fits.
+N#define SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL    (2U)     // Block: Wait until there is space in the buffer.
+N#define SEGGER_RTT_MODE_MASK                  (3U)
+N
+N//
+N// Control sequences, based on ANSI.
+N// Can be used to control color, and clear the screen
+N//
+N#define RTT_CTRL_RESET                "[0m"         // Reset to default colors
+N#define RTT_CTRL_CLEAR                "[2J"         // Clear screen, reposition cursor to top left
+N
+N#define RTT_CTRL_TEXT_BLACK           "[2;30m"
+N#define RTT_CTRL_TEXT_RED             "[2;31m"
+N#define RTT_CTRL_TEXT_GREEN           "[2;32m"
+N#define RTT_CTRL_TEXT_YELLOW          "[2;33m"
+N#define RTT_CTRL_TEXT_BLUE            "[2;34m"
+N#define RTT_CTRL_TEXT_MAGENTA         "[2;35m"
+N#define RTT_CTRL_TEXT_CYAN            "[2;36m"
+N#define RTT_CTRL_TEXT_WHITE           "[2;37m"
+N
+N#define RTT_CTRL_TEXT_BRIGHT_BLACK    "[1;30m"
+N#define RTT_CTRL_TEXT_BRIGHT_RED      "[1;31m"
+N#define RTT_CTRL_TEXT_BRIGHT_GREEN    "[1;32m"
+N#define RTT_CTRL_TEXT_BRIGHT_YELLOW   "[1;33m"
+N#define RTT_CTRL_TEXT_BRIGHT_BLUE     "[1;34m"
+N#define RTT_CTRL_TEXT_BRIGHT_MAGENTA  "[1;35m"
+N#define RTT_CTRL_TEXT_BRIGHT_CYAN     "[1;36m"
+N#define RTT_CTRL_TEXT_BRIGHT_WHITE    "[1;37m"
+N
+N#define RTT_CTRL_BG_BLACK             "[24;40m"
+N#define RTT_CTRL_BG_RED               "[24;41m"
+N#define RTT_CTRL_BG_GREEN             "[24;42m"
+N#define RTT_CTRL_BG_YELLOW            "[24;43m"
+N#define RTT_CTRL_BG_BLUE              "[24;44m"
+N#define RTT_CTRL_BG_MAGENTA           "[24;45m"
+N#define RTT_CTRL_BG_CYAN              "[24;46m"
+N#define RTT_CTRL_BG_WHITE             "[24;47m"
+N
+N#define RTT_CTRL_BG_BRIGHT_BLACK      "[4;40m"
+N#define RTT_CTRL_BG_BRIGHT_RED        "[4;41m"
+N#define RTT_CTRL_BG_BRIGHT_GREEN      "[4;42m"
+N#define RTT_CTRL_BG_BRIGHT_YELLOW     "[4;43m"
+N#define RTT_CTRL_BG_BRIGHT_BLUE       "[4;44m"
+N#define RTT_CTRL_BG_BRIGHT_MAGENTA    "[4;45m"
+N#define RTT_CTRL_BG_BRIGHT_CYAN       "[4;46m"
+N#define RTT_CTRL_BG_BRIGHT_WHITE      "[4;47m"
+N
+N
+N#endif
+N
+N/*************************** End of file ****************************/
+L 65 "..\..\User\RTT\SEGGER_RTT.c" 2
+N
+N#include <string.h>                 // for memcpy
+L 1 "C:\Program1\ARM\ARMCC\Bin\..\include\string.h" 1
+N/* string.h: ANSI 'C' (X3J11 Oct 88) library header, section 4.11 */
+N/* Copyright (C) Codemist Ltd., 1988-1993.                        */
+N/* Copyright 1991-1993 ARM Limited. All rights reserved.          */
+N/* version 0.04 */
+N
+N/*
+N * RCS $Revision$
+N * Checkin $Date$
+N */
+N
+N/*
+N * string.h declares one type and several functions, and defines one macro
+N * useful for manipulating character arrays and other objects treated as
+N * character arrays. Various methods are used for determining the lengths of
+N * the arrays, but in all cases a char * or void * argument points to the
+N * initial (lowest addresses) character of the array. If an array is written
+N * beyond the end of an object, the behaviour is undefined.
+N */
+N
+N#ifndef __string_h
+N#define __string_h
+N#define __ARMCLIB_VERSION 5060037
+N
+N#define _ARMABI __declspec(__nothrow)
+N
+N  #ifndef __STRING_DECLS
+N  #define __STRING_DECLS
+N
+N    #undef __CLIBNS
+N
+N    #ifdef __cplusplus
+S        namespace std {
+S        #define __CLIBNS std::
+S        extern "C" {
+N    #else
+N      #define __CLIBNS
+N    #endif  /* __cplusplus */
+N
+N#if defined(__cplusplus) || !defined(__STRICT_ANSI__)
+X#if 0L || !0L
+N /* unconditional in C++ and non-strict C for consistency of debug info */
+N  #if __sizeof_ptr == 8
+X  #if 4 == 8
+S    typedef unsigned long size_t;   /* see <stddef.h> */
+N  #else
+N    typedef unsigned int size_t;   /* see <stddef.h> */
+N  #endif
+N#elif !defined(__size_t)
+S  #define __size_t 1
+S  #if __sizeof_ptr == 8
+S    typedef unsigned long size_t;   /* see <stddef.h> */
+S  #else
+S    typedef unsigned int size_t;   /* see <stddef.h> */
+S  #endif
+N#endif
+N
+N#undef NULL
+N#define NULL 0                   /* see <stddef.h> */
+N
+Nextern _ARMABI void *memcpy(void * __restrict /*s1*/,
+Xextern __declspec(__nothrow) void *memcpy(void * __restrict  ,
+N                    const void * __restrict /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * copies n characters from the object pointed to by s2 into the object
+N    * pointed to by s1. If copying takes place between objects that overlap,
+N    * the behaviour is undefined.
+N    * Returns: the value of s1.
+N    */
+Nextern _ARMABI void *memmove(void * /*s1*/,
+Xextern __declspec(__nothrow) void *memmove(void *  ,
+N                    const void * /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * copies n characters from the object pointed to by s2 into the object
+N    * pointed to by s1. Copying takes place as if the n characters from the
+N    * object pointed to by s2 are first copied into a temporary array of n
+N    * characters that does not overlap the objects pointed to by s1 and s2,
+N    * and then the n characters from the temporary array are copied into the
+N    * object pointed to by s1.
+N    * Returns: the value of s1.
+N    */
+Nextern _ARMABI char *strcpy(char * __restrict /*s1*/, const char * __restrict /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strcpy(char * __restrict  , const char * __restrict  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * copies the string pointed to by s2 (including the terminating nul
+N    * character) into the array pointed to by s1. If copying takes place
+N    * between objects that overlap, the behaviour is undefined.
+N    * Returns: the value of s1.
+N    */
+Nextern _ARMABI char *strncpy(char * __restrict /*s1*/, const char * __restrict /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strncpy(char * __restrict  , const char * __restrict  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * copies not more than n characters (characters that follow a null
+N    * character are not copied) from the array pointed to by s2 into the array
+N    * pointed to by s1. If copying takes place between objects that overlap,
+N    * the behaviour is undefined.
+N    * Returns: the value of s1.
+N    */
+N
+Nextern _ARMABI char *strcat(char * __restrict /*s1*/, const char * __restrict /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strcat(char * __restrict  , const char * __restrict  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * appends a copy of the string pointed to by s2 (including the terminating
+N    * null character) to the end of the string pointed to by s1. The initial
+N    * character of s2 overwrites the null character at the end of s1.
+N    * Returns: the value of s1.
+N    */
+Nextern _ARMABI char *strncat(char * __restrict /*s1*/, const char * __restrict /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strncat(char * __restrict  , const char * __restrict  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * appends not more than n characters (a null character and characters that
+N    * follow it are not appended) from the array pointed to by s2 to the end of
+N    * the string pointed to by s1. The initial character of s2 overwrites the
+N    * null character at the end of s1. A terminating null character is always
+N    * appended to the result.
+N    * Returns: the value of s1.
+N    */
+N
+N/*
+N * The sign of a nonzero value returned by the comparison functions is
+N * determined by the sign of the difference between the values of the first
+N * pair of characters (both interpreted as unsigned char) that differ in the
+N * objects being compared.
+N */
+N
+Nextern _ARMABI int memcmp(const void * /*s1*/, const void * /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int memcmp(const void *  , const void *  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares the first n characters of the object pointed to by s1 to the
+N    * first n characters of the object pointed to by s2.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the object pointed to by s1 is greater than, equal to, or
+N    *          less than the object pointed to by s2.
+N    */
+Nextern _ARMABI int strcmp(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int strcmp(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares the string pointed to by s1 to the string pointed to by s2.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the string pointed to by s1 is greater than, equal to, or
+N    *          less than the string pointed to by s2.
+N    */
+Nextern _ARMABI int strncmp(const char * /*s1*/, const char * /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int strncmp(const char *  , const char *  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares not more than n characters (characters that follow a null
+N    * character are not compared) from the array pointed to by s1 to the array
+N    * pointed to by s2.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the string pointed to by s1 is greater than, equal to, or
+N    *          less than the string pointed to by s2.
+N    */
+Nextern _ARMABI int strcasecmp(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int strcasecmp(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares the string pointed to by s1 to the string pointed to by s2,
+N    * case-insensitively as defined by the current locale.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the string pointed to by s1 is greater than, equal to, or
+N    *          less than the string pointed to by s2.
+N    */
+Nextern _ARMABI int strncasecmp(const char * /*s1*/, const char * /*s2*/, size_t /*n*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int strncasecmp(const char *  , const char *  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares not more than n characters (characters that follow a null
+N    * character are not compared) from the array pointed to by s1 to the array
+N    * pointed to by s2, case-insensitively as defined by the current locale.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the string pointed to by s1 is greater than, equal to, or
+N    *          less than the string pointed to by s2.
+N    */
+Nextern _ARMABI int strcoll(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) int strcoll(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * compares the string pointed to by s1 to the string pointed to by s2, both
+N    * interpreted as appropriate to the LC_COLLATE category of the current
+N    * locale.
+N    * Returns: an integer greater than, equal to, or less than zero, according
+N    *          as the string pointed to by s1 is greater than, equal to, or
+N    *          less than the string pointed to by s2 when both are interpreted
+N    *          as appropriate to the current locale.
+N    */
+N
+Nextern _ARMABI size_t strxfrm(char * __restrict /*s1*/, const char * __restrict /*s2*/, size_t /*n*/) __attribute__((__nonnull__(2)));
+Xextern __declspec(__nothrow) size_t strxfrm(char * __restrict  , const char * __restrict  , size_t  ) __attribute__((__nonnull__(2)));
+N   /*
+N    * transforms the string pointed to by s2 and places the resulting string
+N    * into the array pointed to by s1. The transformation function is such that
+N    * if the strcmp function is applied to two transformed strings, it returns
+N    * a value greater than, equal to or less than zero, corresponding to the
+N    * result of the strcoll function applied to the same two original strings.
+N    * No more than n characters are placed into the resulting array pointed to
+N    * by s1, including the terminating null character. If n is zero, s1 is
+N    * permitted to be a null pointer. If copying takes place between objects
+N    * that overlap, the behaviour is undefined.
+N    * Returns: The length of the transformed string is returned (not including
+N    *          the terminating null character). If the value returned is n or
+N    *          more, the contents of the array pointed to by s1 are
+N    *          indeterminate.
+N    */
+N
+N
+N#ifdef __cplusplus
+Sextern _ARMABI const void *memchr(const void * /*s*/, int /*c*/, size_t /*n*/) __attribute__((__nonnull__(1)));
+Sextern "C++" void *memchr(void * __s, int __c, size_t __n) __attribute__((__nonnull__(1)));
+Sextern "C++" inline void *memchr(void * __s, int __c, size_t __n)
+S    { return const_cast<void *>(memchr(const_cast<const void *>(__s), __c, __n)); }
+N#else
+Nextern _ARMABI void *memchr(const void * /*s*/, int /*c*/, size_t /*n*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) void *memchr(const void *  , int  , size_t  ) __attribute__((__nonnull__(1)));
+N#endif
+N   /*
+N    * locates the first occurence of c (converted to an unsigned char) in the
+N    * initial n characters (each interpreted as unsigned char) of the object
+N    * pointed to by s.
+N    * Returns: a pointer to the located character, or a null pointer if the
+N    *          character does not occur in the object.
+N    */
+N
+N#ifdef __cplusplus
+Sextern _ARMABI const char *strchr(const char * /*s*/, int /*c*/) __attribute__((__nonnull__(1)));
+Sextern "C++" char *strchr(char * __s, int __c) __attribute__((__nonnull__(1)));
+Sextern "C++" inline char *strchr(char * __s, int __c)
+S    { return const_cast<char *>(strchr(const_cast<const char *>(__s), __c)); }
+N#else
+Nextern _ARMABI char *strchr(const char * /*s*/, int /*c*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) char *strchr(const char *  , int  ) __attribute__((__nonnull__(1)));
+N#endif
+N   /*
+N    * locates the first occurence of c (converted to an char) in the string
+N    * pointed to by s (including the terminating null character).
+N    * Returns: a pointer to the located character, or a null pointer if the
+N    *          character does not occur in the string.
+N    */
+N
+Nextern _ARMABI size_t strcspn(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) size_t strcspn(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * computes the length of the initial segment of the string pointed to by s1
+N    * which consists entirely of characters not from the string pointed to by
+N    * s2. The terminating null character is not considered part of s2.
+N    * Returns: the length of the segment.
+N    */
+N
+N#ifdef __cplusplus
+Sextern _ARMABI const char *strpbrk(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Sextern "C++" char *strpbrk(char * __s1, const char * __s2) __attribute__((__nonnull__(1,2)));
+Sextern "C++" inline char *strpbrk(char * __s1, const char * __s2)
+S    { return const_cast<char *>(strpbrk(const_cast<const char *>(__s1), __s2)); }
+N#else
+Nextern _ARMABI char *strpbrk(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strpbrk(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N#endif
+N   /*
+N    * locates the first occurence in the string pointed to by s1 of any
+N    * character from the string pointed to by s2.
+N    * Returns: returns a pointer to the character, or a null pointer if no
+N    *          character form s2 occurs in s1.
+N    */
+N
+N#ifdef __cplusplus
+Sextern _ARMABI const char *strrchr(const char * /*s*/, int /*c*/) __attribute__((__nonnull__(1)));
+Sextern "C++" char *strrchr(char * __s, int __c) __attribute__((__nonnull__(1)));
+Sextern "C++" inline char *strrchr(char * __s, int __c)
+S    { return const_cast<char *>(strrchr(const_cast<const char *>(__s), __c)); }
+N#else
+Nextern _ARMABI char *strrchr(const char * /*s*/, int /*c*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) char *strrchr(const char *  , int  ) __attribute__((__nonnull__(1)));
+N#endif
+N   /*
+N    * locates the last occurence of c (converted to a char) in the string
+N    * pointed to by s. The terminating null character is considered part of
+N    * the string.
+N    * Returns: returns a pointer to the character, or a null pointer if c does
+N    *          not occur in the string.
+N    */
+N
+Nextern _ARMABI size_t strspn(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) size_t strspn(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * computes the length of the initial segment of the string pointed to by s1
+N    * which consists entirely of characters from the string pointed to by S2
+N    * Returns: the length of the segment.
+N    */
+N
+N#ifdef __cplusplus
+Sextern _ARMABI const char *strstr(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Sextern "C++" char *strstr(char * __s1, const char * __s2) __attribute__((__nonnull__(1,2)));
+Sextern "C++" inline char *strstr(char * __s1, const char * __s2)
+S    { return const_cast<char *>(strstr(const_cast<const char *>(__s1), __s2)); }
+N#else
+Nextern _ARMABI char *strstr(const char * /*s1*/, const char * /*s2*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) char *strstr(const char *  , const char *  ) __attribute__((__nonnull__(1,2)));
+N#endif
+N   /*
+N    * locates the first occurence in the string pointed to by s1 of the
+N    * sequence of characters (excluding the terminating null character) in the
+N    * string pointed to by s2.
+N    * Returns: a pointer to the located string, or a null pointer if the string
+N    *          is not found.
+N    */
+N
+Nextern _ARMABI char *strtok(char * __restrict /*s1*/, const char * __restrict /*s2*/) __attribute__((__nonnull__(2)));
+Xextern __declspec(__nothrow) char *strtok(char * __restrict  , const char * __restrict  ) __attribute__((__nonnull__(2)));
+Nextern _ARMABI char *_strtok_r(char * /*s1*/, const char * /*s2*/, char ** /*ptr*/) __attribute__((__nonnull__(2,3)));
+Xextern __declspec(__nothrow) char *_strtok_r(char *  , const char *  , char **  ) __attribute__((__nonnull__(2,3)));
+N#ifndef __STRICT_ANSI__
+Nextern _ARMABI char *strtok_r(char * /*s1*/, const char * /*s2*/, char ** /*ptr*/) __attribute__((__nonnull__(2,3)));
+Xextern __declspec(__nothrow) char *strtok_r(char *  , const char *  , char **  ) __attribute__((__nonnull__(2,3)));
+N#endif
+N   /*
+N    * A sequence of calls to the strtok function breaks the string pointed to
+N    * by s1 into a sequence of tokens, each of which is delimited by a
+N    * character from the string pointed to by s2. The first call in the
+N    * sequence has s1 as its first argument, and is followed by calls with a
+N    * null pointer as their first argument. The separator string pointed to by
+N    * s2 may be different from call to call.
+N    * The first call in the sequence searches for the first character that is
+N    * not contained in the current separator string s2. If no such character
+N    * is found, then there are no tokens in s1 and the strtok function returns
+N    * a null pointer. If such a character is found, it is the start of the
+N    * first token.
+N    * The strtok function then searches from there for a character that is
+N    * contained in the current separator string. If no such character is found,
+N    * the current token extends to the end of the string pointed to by s1, and
+N    * subsequent searches for a token will fail. If such a character is found,
+N    * it is overwritten by a null character, which terminates the current
+N    * token. The strtok function saves a pointer to the following character,
+N    * from which the next search for a token will start.
+N    * Each subsequent call, with a null pointer as the value for the first
+N    * argument, starts searching from the saved pointer and behaves as
+N    * described above.
+N    * Returns: pointer to the first character of a token, or a null pointer if
+N    *          there is no token.
+N    *
+N    * strtok_r() is a common extension which works exactly like
+N    * strtok(), but instead of storing its state in a hidden
+N    * library variable, requires the user to pass in a pointer to a
+N    * char * variable which will be used instead. Any sequence of
+N    * calls to strtok_r() passing the same char ** pointer should
+N    * behave exactly like the corresponding sequence of calls to
+N    * strtok(). This means that strtok_r() can safely be used in
+N    * multi-threaded programs, and also that you can tokenise two
+N    * strings in parallel.
+N    */
+N
+Nextern _ARMABI void *memset(void * /*s*/, int /*c*/, size_t /*n*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) void *memset(void *  , int  , size_t  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * copies the value of c (converted to an unsigned char) into each of the
+N    * first n charactes of the object pointed to by s.
+N    * Returns: the value of s.
+N    */
+Nextern _ARMABI char *strerror(int /*errnum*/);
+Xextern __declspec(__nothrow) char *strerror(int  );
+N   /*
+N    * maps the error number in errnum to an error message string.
+N    * Returns: a pointer to the string, the contents of which are
+N    *          implementation-defined. The array pointed to shall not be
+N    *          modified by the program, but may be overwritten by a
+N    *          subsequent call to the strerror function.
+N    */
+Nextern _ARMABI size_t strlen(const char * /*s*/) __attribute__((__nonnull__(1)));
+Xextern __declspec(__nothrow) size_t strlen(const char *  ) __attribute__((__nonnull__(1)));
+N   /*
+N    * computes the length of the string pointed to by s.
+N    * Returns: the number of characters that precede the terminating null
+N    *          character.
+N    */
+N
+Nextern _ARMABI size_t strlcpy(char * /*dst*/, const char * /*src*/, size_t /*len*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) size_t strlcpy(char *  , const char *  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * copies the string src into the string dst, using no more than
+N    * len bytes of dst. Always null-terminates dst _within the
+N    * length len (i.e. will copy at most len-1 bytes of string plus
+N    * a NUL), unless len is actually zero.
+N    * 
+N    * Return value is the length of the string that _would_ have
+N    * been written, i.e. the length of src. Thus, the operation
+N    * succeeded without truncation if and only if ret < len;
+N    * otherwise, the value in ret tells you how big to make dst if
+N    * you decide to reallocate it. (That value does _not_ include
+N    * the NUL.)
+N    * 
+N    * This is a BSD-derived library extension, which we are
+N    * permitted to declare in a standard header because ISO defines
+N    * function names beginning with 'str' as reserved for future
+N    * expansion of <string.h>.
+N    */
+N
+Nextern _ARMABI size_t strlcat(char * /*dst*/, const char * /*src*/, size_t /*len*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) size_t strlcat(char *  , const char *  , size_t  ) __attribute__((__nonnull__(1,2)));
+N   /*
+N    * concatenates the string src to the string dst, using no more
+N    * than len bytes of dst. Always null-terminates dst _within the
+N    * length len (i.e. will copy at most len-1 bytes of string plus
+N    * a NUL), unless len is actually zero.
+N    * 
+N    * Return value is the length of the string that _would_ have
+N    * been written, i.e. the length of src plus the original length
+N    * of dst. Thus, the operation succeeded without truncation if
+N    * and only if ret < len; otherwise, the value in ret tells you
+N    * how big to make dst if you decide to reallocate it. (That
+N    * value does _not_ include the NUL.)
+N    * 
+N    * If no NUL is encountered within the first len bytes of dst,
+N    * then the length of dst is considered to have been equal to
+N    * len for the purposes of the return value (as if there were a
+N    * NUL at dst[len]). Thus, the return value in this case is len
+N    * + strlen(src).
+N    * 
+N    * This is a BSD-derived library extension, which we are
+N    * permitted to declare in a standard header because ISO defines
+N    * function names beginning with 'str' as reserved for future
+N    * expansion of <string.h>.
+N    */
+N
+Nextern _ARMABI void _membitcpybl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpybl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitcpybb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpybb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitcpyhl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpyhl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitcpyhb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpyhb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitcpywl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpywl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitcpywb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitcpywb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovebl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovebl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovebb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovebb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovehl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovehl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovehb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovehb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovewl(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovewl(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+Nextern _ARMABI void _membitmovewb(void * /*dest*/, const void * /*src*/, int /*destoffset*/, int /*srcoffset*/, size_t /*nbits*/) __attribute__((__nonnull__(1,2)));
+Xextern __declspec(__nothrow) void _membitmovewb(void *  , const void *  , int  , int  , size_t  ) __attribute__((__nonnull__(1,2)));
+N    /*
+N     * Copies or moves a piece of memory from one place to another,
+N     * with one-bit granularity. So you can start or finish a copy
+N     * part way through a byte, and you can copy between regions
+N     * with different alignment within a byte.
+N     * 
+N     * All these functions have the same prototype: two void *
+N     * pointers for destination and source, then two integers
+N     * giving the bit offset from those pointers, and finally the
+N     * number of bits to copy.
+N     * 
+N     * Just like memcpy and memmove, the "cpy" functions copy as
+N     * fast as they can in the assumption that the memory regions
+N     * do not overlap, while the "move" functions cope correctly
+N     * with overlap.
+N     *
+N     * Treating memory as a stream of individual bits requires
+N     * defining a convention about what order those bits are
+N     * considered to be arranged in. The above functions support
+N     * multiple conventions:
+N     * 
+N     *  - the "bl" functions consider the unit of memory to be the
+N     *    byte, and consider the bits within each byte to be
+N     *    arranged in little-endian fashion, so that the LSB comes
+N     *    first. (For example, membitcpybl(a,b,0,7,1) would copy
+N     *    the MSB of the byte at b to the LSB of the byte at a.)
+N     * 
+N     *  - the "bb" functions consider the unit of memory to be the
+N     *    byte, and consider the bits within each byte to be
+N     *    arranged in big-endian fashion, so that the MSB comes
+N     *    first.
+N     * 
+N     *  - the "hl" functions consider the unit of memory to be the
+N     *    16-bit halfword, and consider the bits within each word
+N     *    to be arranged in little-endian fashion.
+N     * 
+N     *  - the "hb" functions consider the unit of memory to be the
+N     *    16-bit halfword, and consider the bits within each word
+N     *    to be arranged in big-endian fashion.
+N     * 
+N     *  - the "wl" functions consider the unit of memory to be the
+N     *    32-bit word, and consider the bits within each word to be
+N     *    arranged in little-endian fashion.
+N     * 
+N     *  - the "wb" functions consider the unit of memory to be the
+N     *    32-bit word, and consider the bits within each word to be
+N     *    arranged in big-endian fashion.
+N     */
+N
+N    #ifdef __cplusplus
+S         }  /* extern "C" */
+S      }  /* namespace std */
+N    #endif /* __cplusplus */
+N  #endif /* __STRING_DECLS */
+N
+N  #ifdef __cplusplus
+S    #ifndef __STRING_NO_EXPORTS
+S      using ::std::size_t;
+S      using ::std::memcpy;
+S      using ::std::memmove;
+S      using ::std::strcpy;
+S      using ::std::strncpy;
+S      using ::std::strcat;
+S      using ::std::strncat;
+S      using ::std::memcmp;
+S      using ::std::strcmp;
+S      using ::std::strncmp;
+S      using ::std::strcasecmp;
+S      using ::std::strncasecmp;
+S      using ::std::strcoll;
+S      using ::std::strxfrm;
+S      using ::std::memchr;
+S      using ::std::strchr;
+S      using ::std::strcspn;
+S      using ::std::strpbrk;
+S      using ::std::strrchr;
+S      using ::std::strspn;
+S      using ::std::strstr;
+S      using ::std::strtok;
+S#ifndef __STRICT_ANSI__
+S      using ::std::strtok_r;
+S#endif
+S      using ::std::_strtok_r;
+S      using ::std::memset;
+S      using ::std::strerror;
+S      using ::std::strlen;
+S      using ::std::strlcpy;
+S      using ::std::strlcat;
+S      using ::std::_membitcpybl;
+S      using ::std::_membitcpybb;
+S      using ::std::_membitcpyhl;
+S      using ::std::_membitcpyhb;
+S      using ::std::_membitcpywl;
+S      using ::std::_membitcpywb;
+S      using ::std::_membitmovebl;
+S      using ::std::_membitmovebb;
+S      using ::std::_membitmovehl;
+S      using ::std::_membitmovehb;
+S      using ::std::_membitmovewl;
+S      using ::std::_membitmovewb;
+S    #endif /* __STRING_NO_EXPORTS */
+N  #endif /* __cplusplus */
+N
+N#endif
+N
+N/* end of string.h */
+N
+L 67 "..\..\User\RTT\SEGGER_RTT.c" 2
+N
+N/*********************************************************************
+N*
+N*       Configuration, default values
+N*
+N**********************************************************************
+N*/
+N
+N#ifndef   BUFFER_SIZE_UP
+S  #define BUFFER_SIZE_UP                                  1024  // Size of the buffer for terminal output of target, up to host
+N#endif
+N
+N#ifndef   BUFFER_SIZE_DOWN
+S  #define BUFFER_SIZE_DOWN                                16    // Size of the buffer for terminal input to target from host (Usually keyboard input)
+N#endif
+N
+N#ifndef   SEGGER_RTT_MAX_NUM_UP_BUFFERS
+S  #define SEGGER_RTT_MAX_NUM_UP_BUFFERS                    2    // Number of up-buffers (T->H) available on this target
+N#endif
+N
+N#ifndef   SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
+S  #define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS                  2    // Number of down-buffers (H->T) available on this target
+N#endif
+N
+N#ifndef   SEGGER_RTT_MODE_DEFAULT
+S  #define SEGGER_RTT_MODE_DEFAULT                         SEGGER_RTT_MODE_NO_BLOCK_SKIP
+N#endif
+N
+N#ifndef   SEGGER_RTT_LOCK
+S  #define SEGGER_RTT_LOCK()
+N#endif
+N
+N#ifndef   SEGGER_RTT_UNLOCK
+S  #define SEGGER_RTT_UNLOCK()
+N#endif
+N
+N#ifndef   STRLEN
+N  #define STRLEN(a)                                       strlen((a))
+N#endif
+N
+N#ifndef   MEMCPY
+N  #define MEMCPY(pDest, pSrc, NumBytes)                   memcpy((pDest), (pSrc), (NumBytes))
+N#endif
+N
+N#ifndef   MIN
+N  #define MIN(a, b)         (((a) < (b)) ? (a) : (b))
+N#endif
+N
+N#ifndef   MAX
+N  #define MAX(a, b)         (((a) > (b)) ? (a) : (b))
+N#endif
+N//
+N// For some environments, NULL may not be defined until certain headers are included
+N//
+N#ifndef NULL
+S  #define NULL 0
+N#endif
+N
+N/*********************************************************************
+N*
+N*       Static const data
+N*
+N**********************************************************************
+N*/
+N
+Nstatic unsigned char _aTerminalId[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+N
+N/*********************************************************************
+N*
+N*       Static data
+N*
+N**********************************************************************
+N*/
+N//
+N// Allocate buffers for channel 0
+N//
+Nstatic char _acUpBuffer  [BUFFER_SIZE_UP];
+Xstatic char _acUpBuffer  [(1024)];
+Nstatic char _acDownBuffer[BUFFER_SIZE_DOWN];
+Xstatic char _acDownBuffer[(16)];
+N//
+N// Initialize SEGGER Real-time-Terminal control block (CB)
+N//
+NSEGGER_RTT_CB _SEGGER_RTT;
+N
+Nstatic char _ActiveTerminal;
+N
+N/*********************************************************************
+N*
+N*       Static functions
+N*
+N**********************************************************************
+N*/
+N
+N/*********************************************************************
+N*
+N*       _DoInit()
+N*
+N*  Function description
+N*    Initializes the control block an buffers.
+N*    May only be called via INIT() to avoid overriding settings.
+N*
+N*/
+N#define INIT()  do {                                            \
+N                  if (_SEGGER_RTT.acID[0] == '\0') { _DoInit(); }  \
+N                } while (0)
+X#define INIT()  do {                                                              if (_SEGGER_RTT.acID[0] == '\0') { _DoInit(); }                  } while (0)
+Nstatic void _DoInit(void) {
+N  SEGGER_RTT_CB* p;
+N  //
+N  // Initialize control block
+N  //
+N  p = &_SEGGER_RTT;
+N  p->MaxNumUpBuffers    = SEGGER_RTT_MAX_NUM_UP_BUFFERS;
+X  p->MaxNumUpBuffers    = (2);
+N  p->MaxNumDownBuffers  = SEGGER_RTT_MAX_NUM_DOWN_BUFFERS;
+X  p->MaxNumDownBuffers  = (2);
+N  //
+N  // Initialize up buffer 0
+N  //
+N  p->aUp[0].sName         = "Terminal";
+N  p->aUp[0].pBuffer       = _acUpBuffer;
+N  p->aUp[0].SizeOfBuffer  = sizeof(_acUpBuffer);
+N  p->aUp[0].RdOff         = 0u;
+N  p->aUp[0].WrOff         = 0u;
+N  p->aUp[0].Flags         = SEGGER_RTT_MODE_DEFAULT;
+X  p->aUp[0].Flags         = (0U);
+N  //
+N  // Initialize down buffer 0
+N  //
+N  p->aDown[0].sName         = "Terminal";
+N  p->aDown[0].pBuffer       = _acDownBuffer;
+N  p->aDown[0].SizeOfBuffer  = sizeof(_acDownBuffer);
+N  p->aDown[0].RdOff         = 0u;
+N  p->aDown[0].WrOff         = 0u;
+N  p->aDown[0].Flags         = SEGGER_RTT_MODE_DEFAULT;
+X  p->aDown[0].Flags         = (0U);
+N  //
+N  // Finish initialization of the control block.
+N  // Copy Id string in three steps to make sure "SEGGER RTT" is not found
+N  // in initializer memory (usually flash) by J-Link
+N  //
+N  strcpy(&p->acID[7], "RTT");
+N  strcpy(&p->acID[0], "SEGGER");
+N  p->acID[6] = ' ';
+N}
+N
+N/*********************************************************************
+N*
+N*       _WriteBlocking()
+N*
+N*  Function description
+N*    Stores a specified number of characters in SEGGER RTT ring buffer
+N*    and updates the associated write pointer which is periodically
+N*    read by the host.
+N*    The caller is responsible for managing the write chunk sizes as
+N*    _WriteBlocking() will block until all data has been posted successfully.
+N*
+N*  Parameters
+N*    pRing        Ring buffer to post to.
+N*    pBuffer      Pointer to character array. Does not need to point to a \0 terminated string.
+N*    NumBytes     Number of bytes to be stored in the SEGGER RTT control block.
+N*
+N*  Return value
+N*    >= 0 - Number of bytes written into buffer.
+N*/
+Nstatic unsigned _WriteBlocking(SEGGER_RTT_BUFFER_UP* pRing, const char* pBuffer, unsigned NumBytes) {
+N  unsigned NumBytesToWrite;
+N  unsigned NumBytesWritten;
+N  unsigned RdOff;
+N  unsigned WrOff;
+N  //
+N  // Write data to buffer and handle wrap-around if necessary
+N  //
+N  NumBytesWritten = 0u;
+N  WrOff = pRing->WrOff;
+N  do {
+N    RdOff = pRing->RdOff;                         // May be changed by host (debug probe) in the meantime
+N    if (RdOff > WrOff) {
+N      NumBytesToWrite = RdOff - WrOff - 1u;
+N    } else {
+N      NumBytesToWrite = pRing->SizeOfBuffer - (WrOff - RdOff + 1u);
+N    }
+N    NumBytesToWrite = MIN(NumBytesToWrite, (pRing->SizeOfBuffer - WrOff));      // Number of bytes that can be written until buffer wrap-around
+X    NumBytesToWrite = (((NumBytesToWrite) < ((pRing->SizeOfBuffer - WrOff))) ? (NumBytesToWrite) : ((pRing->SizeOfBuffer - WrOff)));      
+N    NumBytesToWrite = MIN(NumBytesToWrite, NumBytes);
+X    NumBytesToWrite = (((NumBytesToWrite) < (NumBytes)) ? (NumBytesToWrite) : (NumBytes));
+N    memcpy(pRing->pBuffer + WrOff, pBuffer, NumBytesToWrite);
+N    NumBytesWritten += NumBytesToWrite;
+N    pBuffer         += NumBytesToWrite;
+N    NumBytes        -= NumBytesToWrite;
+N    WrOff           += NumBytesToWrite;
+N    if (WrOff == pRing->SizeOfBuffer) {
+N      WrOff = 0u;
+N    }
+N    pRing->WrOff = WrOff;
+N  } while (NumBytes);
+N  //
+N  return NumBytesWritten;
+N}
+N
+N/*********************************************************************
+N*
+N*       _WriteNoCheck()
+N*
+N*  Function description
+N*    Stores a specified number of characters in SEGGER RTT ring buffer
+N*    and updates the associated write pointer which is periodically
+N*    read by the host.
+N*    It is callers responsibility to make sure data actually fits in buffer.
+N*
+N*  Parameters
+N*    pRing        Ring buffer to post to.
+N*    pBuffer      Pointer to character array. Does not need to point to a \0 terminated string.
+N*    NumBytes     Number of bytes to be stored in the SEGGER RTT control block.
+N*
+N*  Notes
+N*    (1) If there might not be enough space in the "Up"-buffer, call _WriteBlocking
+N*/
+Nstatic void _WriteNoCheck(SEGGER_RTT_BUFFER_UP* pRing, const char* pData, unsigned NumBytes) {
+N  unsigned NumBytesAtOnce;
+N  unsigned WrOff;
+N  unsigned Rem;
+N
+N  WrOff = pRing->WrOff;
+N  Rem = pRing->SizeOfBuffer - WrOff;
+N  if (Rem > NumBytes) {
+N    //
+N    // All data fits before wrap around
+N    //
+N    memcpy(pRing->pBuffer + WrOff, pData, NumBytes);
+N    pRing->WrOff = WrOff + NumBytes;
+N  } else {
+N    //
+N    // We reach the end of the buffer, so need to wrap around
+N    //
+N    NumBytesAtOnce = Rem;
+N    memcpy(pRing->pBuffer + WrOff, pData, NumBytesAtOnce);
+N    NumBytesAtOnce = NumBytes - Rem;
+N    memcpy(pRing->pBuffer, pData + Rem, NumBytesAtOnce);
+N    pRing->WrOff = NumBytesAtOnce;
+N  }
+N}
+N
+N/*********************************************************************
+N*
+N*       _PostTerminalSwitch()
+N*
+N*  Function description
+N*    Switch terminal to the given terminal ID.  It is the caller's
+N*    responsibility to ensure the terminal ID is correct and there is
+N*    enough space in the buffer for this to complete successfully.
+N*
+N*  Parameters
+N*    pRing        Ring buffer to post to.
+N*    TerminalId   Terminal ID to switch to.
+N*/
+Nstatic void _PostTerminalSwitch(SEGGER_RTT_BUFFER_UP* pRing, unsigned char TerminalId) {
+N  char ac[2];
+N
+N  ac[0] = 0xFFu;
+N  ac[1] = _aTerminalId[TerminalId];  // Caller made already sure that TerminalId does not exceed our terminal limit
+N  _WriteBlocking(pRing, ac, 2u);
+N}
+N
+N/*********************************************************************
+N*
+N*       _GetAvailWriteSpace()
+N*
+N*  Function description
+N*    Returns the number of bytes that can be written to the ring
+N*    buffer without blocking.
+N*
+N*  Parameters
+N*    pRing        Ring buffer to check.
+N*
+N*  Return value
+N*    Number of bytes that are free in the buffer.
+N*/
+Nstatic unsigned _GetAvailWriteSpace(SEGGER_RTT_BUFFER_UP* pRing) {
+N  unsigned RdOff;
+N  unsigned WrOff;
+N  unsigned r;
+N  //
+N  // Avoid warnings regarding volatile access order.  It's not a problem
+N  // in this case, but dampen compiler enthusiasm.
+N  //
+N  RdOff = pRing->RdOff;
+N  WrOff = pRing->WrOff;
+N  if (RdOff <= WrOff) {
+N    r = pRing->SizeOfBuffer - 1u - WrOff + RdOff;
+N  } else {
+N    r = RdOff - WrOff - 1u;
+N  }
+N  return r;
+N}
+N
+N/*********************************************************************
+N*
+N*       Public code
+N*
+N**********************************************************************
+N*/
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_ReadNoLock()
+N*
+N*  Function description
+N*    Reads characters from SEGGER real-time-terminal control block
+N*    which have been previously stored by the host.
+N*    Do not lock against interrupts and multiple access.
+N*
+N*  Parameters
+N*    BufferIndex  Index of Down-buffer to be used (e.g. 0 for "Terminal").
+N*    pBuffer      Pointer to buffer provided by target application, to copy characters from RTT-down-buffer to.
+N*    BufferSize   Size of the target application buffer.
+N*
+N*  Return value
+N*    Number of bytes that have been read.
+N*/
+Nunsigned SEGGER_RTT_ReadNoLock(unsigned BufferIndex, void* pData, unsigned BufferSize) {
+N  unsigned                NumBytesRem;
+N  unsigned                NumBytesRead;
+N  unsigned                RdOff;
+N  unsigned                WrOff;
+N  unsigned char*          pBuffer;
+N  SEGGER_RTT_BUFFER_DOWN* pRing;
+N  //
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  pRing = &_SEGGER_RTT.aDown[BufferIndex];
+N  pBuffer = (unsigned char*)pData;
+N  RdOff = pRing->RdOff;
+N  WrOff = pRing->WrOff;
+N  NumBytesRead = 0u;
+N  //
+N  // Read from current read position to wrap-around of buffer, first
+N  //
+N  if (RdOff > WrOff) {
+N    NumBytesRem = pRing->SizeOfBuffer - RdOff;
+N    NumBytesRem = MIN(NumBytesRem, BufferSize);
+X    NumBytesRem = (((NumBytesRem) < (BufferSize)) ? (NumBytesRem) : (BufferSize));
+N    memcpy(pBuffer, pRing->pBuffer + RdOff, NumBytesRem);
+N    NumBytesRead += NumBytesRem;
+N    pBuffer      += NumBytesRem;
+N    BufferSize   -= NumBytesRem;
+N    RdOff        += NumBytesRem;
+N    //
+N    // Handle wrap-around of buffer
+N    //
+N    if (RdOff == pRing->SizeOfBuffer) {
+N      RdOff = 0u;
+N    }
+N  }
+N  //
+N  // Read remaining items of buffer
+N  //
+N  NumBytesRem = WrOff - RdOff;
+N  NumBytesRem = MIN(NumBytesRem, BufferSize);
+X  NumBytesRem = (((NumBytesRem) < (BufferSize)) ? (NumBytesRem) : (BufferSize));
+N  if (NumBytesRem > 0u) {
+N    memcpy(pBuffer, pRing->pBuffer + RdOff, NumBytesRem);
+N    NumBytesRead += NumBytesRem;
+N    pBuffer      += NumBytesRem;
+N    BufferSize   -= NumBytesRem;
+N    RdOff        += NumBytesRem;
+N  }
+N  if (NumBytesRead) {
+N    pRing->RdOff = RdOff;
+N  }
+N  //
+N  return NumBytesRead;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_Read
+N*
+N*  Function description
+N*    Reads characters from SEGGER real-time-terminal control block
+N*    which have been previously stored by the host.
+N*
+N*  Parameters
+N*    BufferIndex  Index of Down-buffer to be used (e.g. 0 for "Terminal").
+N*    pBuffer      Pointer to buffer provided by target application, to copy characters from RTT-down-buffer to.
+N*    BufferSize   Size of the target application buffer.
+N*
+N*  Return value
+N*    Number of bytes that have been read.
+N*/
+Nunsigned SEGGER_RTT_Read(unsigned BufferIndex, void* pBuffer, unsigned BufferSize) {
+N  unsigned NumBytesRead;
+N  //
+N  SEGGER_RTT_LOCK();
+X  ;
+N  //
+N  // Call the non-locking read function
+N  //
+N  NumBytesRead = SEGGER_RTT_ReadNoLock(BufferIndex, pBuffer, BufferSize);
+N  //
+N  // Finish up.
+N  //
+N  SEGGER_RTT_UNLOCK();
+X  ;
+N  //
+N  return NumBytesRead;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_WriteSkipNoLock
+N*
+N*  Function description
+N*    Stores a specified number of characters in SEGGER RTT
+N*    control block which is then read by the host.
+N*    SEGGER_RTT_WriteSkipNoLock does not lock the application and
+N*    skips all data, if the data does not fit into the buffer.
+N*
+N*  Parameters
+N*    BufferIndex  Index of "Up"-buffer to be used (e.g. 0 for "Terminal").
+N*    pBuffer      Pointer to character array. Does not need to point to a \0 terminated string.
+N*    NumBytes     Number of bytes to be stored in the SEGGER RTT control block.
+N*
+N*  Return value
+N*    Number of bytes which have been stored in the "Up"-buffer.
+N*
+N*  Notes
+N*    (1) If there is not enough space in the "Up"-buffer, all data is dropped.
+N*    (2) For performance reasons this function does not call Init()
+N*        and may only be called after RTT has been initialized.
+N*        Either by calling SEGGER_RTT_Init() or calling another RTT API function first.
+N*/
+Nunsigned SEGGER_RTT_WriteSkipNoLock(unsigned BufferIndex, const void* pBuffer, unsigned NumBytes) {
+N  const char*           pData;
+N  SEGGER_RTT_BUFFER_UP* pRing;
+N  unsigned              Avail;
+N  unsigned              RdOff;
+N  unsigned              WrOff;
+N  unsigned              Rem;
+N
+N  pData = (const char *)pBuffer;
+N  //
+N  // Get "to-host" ring buffer and copy some elements into local variables.
+N  //
+N  pRing = &_SEGGER_RTT.aUp[BufferIndex];
+N  RdOff = pRing->RdOff;
+N  WrOff = pRing->WrOff;
+N  //
+N  // Handle the most common cases fastest.
+N  // Which is:
+N  //    RdOff <= WrOff -> Space until wrap around is free.
+N  //  AND
+N  //    WrOff + NumBytes < SizeOfBuffer -> No Wrap around necessary.
+N  //
+N  //  OR
+N  //
+N  //    RdOff > WrOff -> Space until RdOff - 1 is free.
+N  //  AND
+N  //    WrOff + NumBytes < RdOff -> Data fits into buffer
+N  //
+N  if (RdOff <= WrOff) {
+N    //
+N    // Get space until WrOff will be at wrap around.
+N    //
+N    Avail = pRing->SizeOfBuffer - 1u - WrOff ;
+N    if (Avail >= NumBytes) {
+N#if 1 // memcpy() is good for large amounts of data, but the overhead is too big for small amounts. Use a simple byte loop instead.
+N      char* pDst;
+N      pDst = pRing->pBuffer + WrOff;
+N      WrOff += NumBytes;
+N      do {
+N        *pDst++ = *pData++;
+N      } while (--NumBytes);
+N      pRing->WrOff = WrOff + NumBytes;
+N#else
+S      memcpy(pRing->pBuffer + WrOff, pData, NumBytes);
+S      pRing->WrOff = WrOff + NumBytes;
+N#endif
+N      return 1;
+N    }
+N    //
+N    // If data did not fit into space until wrap around calculate complete space in buffer.
+N    //
+N    Avail += RdOff;
+N    //
+N    // If there is still no space for the whole of this output, don't bother.
+N    //
+N    if (Avail >= NumBytes) {
+N      //
+N      //  OK, we have enough space in buffer. Copy in one or 2 chunks
+N      //
+N      Rem = pRing->SizeOfBuffer - WrOff;      // Space until end of buffer
+N      if (Rem > NumBytes) {
+N        memcpy(pRing->pBuffer + WrOff, pData, NumBytes);
+N        pRing->WrOff = WrOff + NumBytes;
+N      } else {
+N        //
+N        // We reach the end of the buffer, so need to wrap around
+N        //
+N        memcpy(pRing->pBuffer + WrOff, pData, Rem);
+N        memcpy(pRing->pBuffer, pData + Rem, NumBytes - Rem);
+N        pRing->WrOff = NumBytes - Rem;
+N      }
+N      return 1;
+N    }
+N  } else {
+N    Avail = RdOff - WrOff - 1u;
+N    if (Avail >= NumBytes) {
+N      memcpy(pRing->pBuffer + WrOff, pData, NumBytes);
+N      pRing->WrOff = WrOff + NumBytes;
+N      return 1;
+N    }
+N  }
+N  //
+N  // If we reach this point no data has been written
+N  //
+N  return 0;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_WriteNoLock
+N*
+N*  Function description
+N*    Stores a specified number of characters in SEGGER RTT
+N*    control block which is then read by the host.
+N*    SEGGER_RTT_WriteNoLock does not lock the application.
+N*
+N*  Parameters
+N*    BufferIndex  Index of "Up"-buffer to be used (e.g. 0 for "Terminal").
+N*    pBuffer      Pointer to character array. Does not need to point to a \0 terminated string.
+N*    NumBytes     Number of bytes to be stored in the SEGGER RTT control block.
+N*
+N*  Return value
+N*    Number of bytes which have been stored in the "Up"-buffer.
+N*
+N*  Notes
+N*    (1) If there is not enough space in the "Up"-buffer, remaining characters of pBuffer are dropped.
+N*    (2) For performance reasons this function does not call Init()
+N*        and may only be called after RTT has been initialized.
+N*        Either by calling SEGGER_RTT_Init() or calling another RTT API function first.
+N*/
+Nunsigned SEGGER_RTT_WriteNoLock(unsigned BufferIndex, const void* pBuffer, unsigned NumBytes) {
+N  unsigned              Status;
+N  unsigned              Avail;
+N  const char*           pData;
+N  SEGGER_RTT_BUFFER_UP* pRing;
+N
+N  pData = (const char *)pBuffer;
+N  //
+N  // Get "to-host" ring buffer.
+N  //
+N  pRing = &_SEGGER_RTT.aUp[BufferIndex];
+N  //
+N  // How we output depends upon the mode...
+N  //
+N  switch (pRing->Flags) {
+N  case SEGGER_RTT_MODE_NO_BLOCK_SKIP:
+X  case (0U):
+N    //
+N    // If we are in skip mode and there is no space for the whole
+N    // of this output, don't bother.
+N    //
+N    Avail = _GetAvailWriteSpace(pRing);
+N    if (Avail < NumBytes) {
+N      Status = 0u;
+N    } else {
+N      Status = NumBytes;
+N      _WriteNoCheck(pRing, pData, NumBytes);
+N    }
+N    break;
+N  case SEGGER_RTT_MODE_NO_BLOCK_TRIM:
+X  case (1U):
+N    //
+N    // If we are in trim mode, trim to what we can output without blocking.
+N    //
+N    Avail = _GetAvailWriteSpace(pRing);
+N    Status = Avail < NumBytes ? Avail : NumBytes;
+N    _WriteNoCheck(pRing, pData, Status);
+N    break;
+N  case SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL:
+X  case (2U):
+N    //
+N    // If we are in blocking mode, output everything.
+N    //
+N    Status = _WriteBlocking(pRing, pData, NumBytes);
+N    break;
+N  default:
+N    Status = 0u;
+N    break;
+N  }
+N  //
+N  // Finish up.
+N  //
+N  return Status;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_Write
+N*
+N*  Function description
+N*    Stores a specified number of characters in SEGGER RTT
+N*    control block which is then read by the host.
+N*
+N*  Parameters
+N*    BufferIndex  Index of "Up"-buffer to be used (e.g. 0 for "Terminal").
+N*    pBuffer      Pointer to character array. Does not need to point to a \0 terminated string.
+N*    NumBytes     Number of bytes to be stored in the SEGGER RTT control block.
+N*
+N*  Return value
+N*    Number of bytes which have been stored in the "Up"-buffer.
+N*
+N*  Notes
+N*    (1) If there is not enough space in the "Up"-buffer, remaining characters of pBuffer are dropped.
+N*/
+Nunsigned SEGGER_RTT_Write(unsigned BufferIndex, const void* pBuffer, unsigned NumBytes) {
+N  unsigned Status;
+N  //
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  SEGGER_RTT_LOCK();
+X  ;
+N  //
+N  // Call the non-locking write function
+N  //
+N  Status = SEGGER_RTT_WriteNoLock(BufferIndex, pBuffer, NumBytes);
+N  //
+N  // Finish up.
+N  //
+N  SEGGER_RTT_UNLOCK();
+X  ;
+N  //
+N  return Status;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_WriteString
+N*
+N*  Function description
+N*    Stores string in SEGGER RTT control block.
+N*    This data is read by the host.
+N*
+N*  Parameters
+N*    BufferIndex  Index of "Up"-buffer to be used (e.g. 0 for "Terminal").
+N*    s            Pointer to string.
+N*
+N*  Return value
+N*    Number of bytes which have been stored in the "Up"-buffer.
+N*
+N*  Notes
+N*    (1) If there is not enough space in the "Up"-buffer, depending on configuration,
+N*        remaining characters may be dropped or RTT module waits until there is more space in the buffer.
+N*    (2) String passed to this function has to be \0 terminated
+N*    (3) \0 termination character is *not* stored in RTT buffer
+N*/
+Nunsigned SEGGER_RTT_WriteString(unsigned BufferIndex, const char* s) {
+N  unsigned Len;
+N
+N  Len = STRLEN(s);
+X  Len = strlen((s));
+N  return SEGGER_RTT_Write(BufferIndex, s, Len);
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_GetKey
+N*
+N*  Function description
+N*    Reads one character from the SEGGER RTT buffer.
+N*    Host has previously stored data there.
+N*
+N*  Return value
+N*    <  0 -   No character available (buffer empty).
+N*    >= 0 -   Character which has been read. (Possible values: 0 - 255)
+N*
+N*  Notes
+N*    (1) This function is only specified for accesses to RTT buffer 0.
+N*/
+Nint SEGGER_RTT_GetKey(void) {
+N  char c;
+N  int r;
+N
+N  r = (int)SEGGER_RTT_Read(0u, &c, 1u);
+N  if (r == 1) {
+N    r = (int)(unsigned char)c;
+N  } else {
+N    r = -1;
+N  }
+N  return r;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_WaitKey
+N*
+N*  Function description
+N*    Waits until at least one character is avaible in the SEGGER RTT buffer.
+N*    Once a character is available, it is read and this function returns.
+N*
+N*  Return value
+N*    >=0 -   Character which has been read.
+N*
+N*  Notes
+N*    (1) This function is only specified for accesses to RTT buffer 0
+N*    (2) This function is blocking if no character is present in RTT buffer
+N*/
+Nint SEGGER_RTT_WaitKey(void) {
+N  int r;
+N
+N  do {
+N    r = SEGGER_RTT_GetKey();
+N  } while (r < 0);
+N  return r;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_HasKey
+N*
+N*  Function description
+N*    Checks if at least one character for reading is available in the SEGGER RTT buffer.
+N*
+N*  Return value
+N*    == 0 -     No characters are available to read.
+N*    == 1 -     At least one character is available.
+N*
+N*  Notes
+N*    (1) This function is only specified for accesses to RTT buffer 0
+N*/
+Nint SEGGER_RTT_HasKey(void) {
+N  unsigned RdOff;
+N  int r;
+N
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  RdOff = _SEGGER_RTT.aDown[0].RdOff;
+N  if (RdOff != _SEGGER_RTT.aDown[0].WrOff) {
+N    r = 1;
+N  } else {
+N    r = 0;
+N  }
+N  return r;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_HasData
+N*
+N*  Function description
+N*    Check if there is data from the host in the given buffer.
+N*
+N*  Return value:
+N*  ==0:  No data
+N*  !=0:  Data in buffer
+N*
+N*/
+Nunsigned SEGGER_RTT_HasData(unsigned BufferIndex) {
+N  SEGGER_RTT_BUFFER_DOWN* pRing;
+N  unsigned                v;
+N
+N  pRing = &_SEGGER_RTT.aDown[BufferIndex];
+N  v = pRing->WrOff;
+N  return v - pRing->RdOff;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_AllocDownBuffer
+N*
+N*  Function description
+N*    Run-time configuration of the next down-buffer (H->T).
+N*    The next buffer, which is not used yet is configured.
+N*    This includes: Buffer address, size, name, flags, ...
+N*
+N*  Parameters
+N*    sName        Pointer to a constant name string.
+N*    pBuffer      Pointer to a buffer to be used.
+N*    BufferSize   Size of the buffer.
+N*    Flags        Operating modes. Define behavior if buffer is full (not enough space for entire message).
+N*
+N*  Return value
+N*    >= 0 - O.K. Buffer Index
+N*     < 0 - Error
+N*/
+Nint SEGGER_RTT_AllocDownBuffer(const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags) {
+N  int BufferIndex;
+N
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  SEGGER_RTT_LOCK();
+X  ;
+N  BufferIndex = 0;
+N  do {
+N    if (_SEGGER_RTT.aDown[BufferIndex].pBuffer == NULL) {
+X    if (_SEGGER_RTT.aDown[BufferIndex].pBuffer == 0) {
+N      break;
+N    }
+N    BufferIndex++;
+N  } while (BufferIndex < _SEGGER_RTT.MaxNumDownBuffers);
+N  if (BufferIndex < _SEGGER_RTT.MaxNumDownBuffers) {
+N    _SEGGER_RTT.aDown[BufferIndex].sName        = sName;
+N    _SEGGER_RTT.aDown[BufferIndex].pBuffer      = pBuffer;
+N    _SEGGER_RTT.aDown[BufferIndex].SizeOfBuffer = BufferSize;
+N    _SEGGER_RTT.aDown[BufferIndex].RdOff        = 0u;
+N    _SEGGER_RTT.aDown[BufferIndex].WrOff        = 0u;
+N    _SEGGER_RTT.aDown[BufferIndex].Flags        = Flags;
+N  } else {
+N    BufferIndex = -1;
+N  }
+N  SEGGER_RTT_UNLOCK();
+X  ;
+N  return BufferIndex;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_AllocUpBuffer
+N*
+N*  Function description
+N*    Run-time configuration of the next up-buffer (T->H).
+N*    The next buffer, which is not used yet is configured.
+N*    This includes: Buffer address, size, name, flags, ...
+N*
+N*  Parameters
+N*    sName        Pointer to a constant name string.
+N*    pBuffer      Pointer to a buffer to be used.
+N*    BufferSize   Size of the buffer.
+N*    Flags        Operating modes. Define behavior if buffer is full (not enough space for entire message).
+N*
+N*  Return value
+N*    >= 0 - O.K. Buffer Index
+N*     < 0 - Error
+N*/
+Nint SEGGER_RTT_AllocUpBuffer(const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags) {
+N  int BufferIndex;
+N
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  SEGGER_RTT_LOCK();
+X  ;
+N  BufferIndex = 0;
+N  do {
+N    if (_SEGGER_RTT.aUp[BufferIndex].pBuffer == NULL) {
+X    if (_SEGGER_RTT.aUp[BufferIndex].pBuffer == 0) {
+N      break;
+N    }
+N    BufferIndex++;
+N  } while (BufferIndex < _SEGGER_RTT.MaxNumUpBuffers);
+N  if (BufferIndex < _SEGGER_RTT.MaxNumUpBuffers) {
+N    _SEGGER_RTT.aUp[BufferIndex].sName        = sName;
+N    _SEGGER_RTT.aUp[BufferIndex].pBuffer      = pBuffer;
+N    _SEGGER_RTT.aUp[BufferIndex].SizeOfBuffer = BufferSize;
+N    _SEGGER_RTT.aUp[BufferIndex].RdOff        = 0u;
+N    _SEGGER_RTT.aUp[BufferIndex].WrOff        = 0u;
+N    _SEGGER_RTT.aUp[BufferIndex].Flags        = Flags;
+N  } else {
+N    BufferIndex = -1;
+N  }
+N  SEGGER_RTT_UNLOCK();
+X  ;
+N  return BufferIndex;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_ConfigUpBuffer
+N*
+N*  Function description
+N*    Run-time configuration of a specific up-buffer (T->H).
+N*    Buffer to be configured is specified by index.
+N*    This includes: Buffer address, size, name, flags, ...
+N*
+N*  Parameters
+N*    BufferIndex  Index of the buffer to configure.
+N*    sName        Pointer to a constant name string.
+N*    pBuffer      Pointer to a buffer to be used.
+N*    BufferSize   Size of the buffer.
+N*    Flags        Operating modes. Define behavior if buffer is full (not enough space for entire message).
+N*
+N*  Return value
+N*    >= 0 - O.K.
+N*     < 0 - Error
+N*/
+Nint SEGGER_RTT_ConfigUpBuffer(unsigned BufferIndex, const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags) {
+N  int r;
+N
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  if (BufferIndex < (unsigned)_SEGGER_RTT.MaxNumUpBuffers) {
+N    SEGGER_RTT_LOCK();
+X    ;
+N    if (BufferIndex > 0u) {
+N      _SEGGER_RTT.aUp[BufferIndex].sName        = sName;
+N      _SEGGER_RTT.aUp[BufferIndex].pBuffer      = pBuffer;
+N      _SEGGER_RTT.aUp[BufferIndex].SizeOfBuffer = BufferSize;
+N      _SEGGER_RTT.aUp[BufferIndex].RdOff        = 0u;
+N      _SEGGER_RTT.aUp[BufferIndex].WrOff        = 0u;
+N    }
+N    _SEGGER_RTT.aUp[BufferIndex].Flags          = Flags;
+N    SEGGER_RTT_UNLOCK();
+X    ;
+N    r =  0;
+N  } else {
+N    r = -1;
+N  }
+N  return r;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_ConfigDownBuffer
+N*
+N*  Function description
+N*    Run-time configuration of a specific down-buffer (H->T).
+N*    Buffer to be configured is specified by index.
+N*    This includes: Buffer address, size, name, flags, ...
+N*
+N*  Parameters
+N*    BufferIndex  Index of the buffer to configure.
+N*    sName        Pointer to a constant name string.
+N*    pBuffer      Pointer to a buffer to be used.
+N*    BufferSize   Size of the buffer.
+N*    Flags        Operating modes. Define behavior if buffer is full (not enough space for entire message).
+N*
+N*  Return value
+N*    >= 0  O.K.
+N*     < 0  Error
+N*/
+Nint SEGGER_RTT_ConfigDownBuffer(unsigned BufferIndex, const char* sName, void* pBuffer, unsigned BufferSize, unsigned Flags) {
+N  int r;
+N
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  if (BufferIndex < (unsigned)_SEGGER_RTT.MaxNumDownBuffers) {
+N    SEGGER_RTT_LOCK();
+X    ;
+N    if (BufferIndex > 0u) {
+N      _SEGGER_RTT.aDown[BufferIndex].sName        = sName;
+N      _SEGGER_RTT.aDown[BufferIndex].pBuffer      = pBuffer;
+N      _SEGGER_RTT.aDown[BufferIndex].SizeOfBuffer = BufferSize;
+N      _SEGGER_RTT.aDown[BufferIndex].RdOff        = 0u;
+N      _SEGGER_RTT.aDown[BufferIndex].WrOff        = 0u;
+N    }
+N    _SEGGER_RTT.aDown[BufferIndex].Flags          = Flags;
+N    SEGGER_RTT_UNLOCK();
+X    ;
+N    r =  0;
+N  } else {
+N    r = -1;
+N  }
+N  return r;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_SetNameUpBuffer
+N*
+N*  Function description
+N*    Run-time configuration of a specific up-buffer name (T->H).
+N*    Buffer to be configured is specified by index.
+N*
+N*  Parameters
+N*    BufferIndex  Index of the buffer to renamed.
+N*    sName        Pointer to a constant name string.
+N*
+N*  Return value
+N*    >= 0  O.K.
+N*     < 0  Error
+N*/
+Nint SEGGER_RTT_SetNameUpBuffer(unsigned BufferIndex, const char* sName) {
+N  int r;
+N
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  if (BufferIndex < (unsigned)_SEGGER_RTT.MaxNumUpBuffers) {
+N    SEGGER_RTT_LOCK();
+X    ;
+N    _SEGGER_RTT.aUp[BufferIndex].sName = sName;
+N    SEGGER_RTT_UNLOCK();
+X    ;
+N    r =  0;
+N  } else {
+N    r = -1;
+N  }
+N  return r;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_SetNameDownBuffer
+N*
+N*  Function description
+N*    Run-time configuration of a specific Down-buffer name (T->H).
+N*    Buffer to be configured is specified by index.
+N*
+N*  Parameters
+N*    BufferIndex  Index of the buffer to renamed.
+N*    sName        Pointer to a constant name string.
+N*
+N*  Return value
+N*    >= 0  O.K.
+N*     < 0  Error
+N*/
+Nint SEGGER_RTT_SetNameDownBuffer(unsigned BufferIndex, const char* sName) {
+N  int r;
+N
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  if (BufferIndex < (unsigned)_SEGGER_RTT.MaxNumDownBuffers) {
+N    SEGGER_RTT_LOCK();
+X    ;
+N    _SEGGER_RTT.aDown[BufferIndex].sName = sName;
+N    SEGGER_RTT_UNLOCK();
+X    ;
+N    r =  0;
+N  } else {
+N    r = -1;
+N  }
+N  return r;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_Init
+N*
+N*  Function description
+N*    Initializes the RTT Control Block.
+N*    Should be used in RAM targets, at start of the application.
+N*
+N*/
+Nvoid SEGGER_RTT_Init (void) {
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_SetTerminal
+N*
+N*  Function description
+N*    Sets the terminal to be used for output on channel 0.
+N*
+N*  Parameters
+N*    TerminalId  Index of the terminal.
+N*
+N*  Return value
+N*    >= 0  O.K.
+N*     < 0  Error (e.g. if RTT is configured for non-blocking mode and there was no space in the buffer to set the new terminal Id)
+N*/
+Nint SEGGER_RTT_SetTerminal (char TerminalId) {
+N  char                  ac[2];
+N  SEGGER_RTT_BUFFER_UP* pRing;
+N  unsigned Avail;
+N  int r;
+N  //
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  //
+N  r = 0;
+N  ac[0] = 0xFFU;
+N  if ((unsigned char)TerminalId < (unsigned char)sizeof(_aTerminalId)) { // We only support a certain number of channels
+N    ac[1] = _aTerminalId[(unsigned char)TerminalId];
+N    pRing = &_SEGGER_RTT.aUp[0];    // Buffer 0 is always reserved for terminal I/O, so we can use index 0 here, fixed
+N    SEGGER_RTT_LOCK();    // Lock to make sure that no other task is writing into buffer, while we are and number of free bytes in buffer does not change downwards after checking and before writing
+X    ;    
+N    if ((pRing->Flags & SEGGER_RTT_MODE_MASK) == SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL) {
+X    if ((pRing->Flags & (3U)) == (2U)) {
+N      _ActiveTerminal = TerminalId;
+N      _WriteBlocking(pRing, ac, 2u);
+N    } else {                                                                            // Skipping mode or trim mode? => We cannot trim this command so handling is the same for both modes
+N      Avail = _GetAvailWriteSpace(pRing);
+N      if (Avail >= 2) {
+N        _ActiveTerminal = TerminalId;    // Only change active terminal in case of success
+N        _WriteNoCheck(pRing, ac, 2u);
+N      } else {
+N        r = -1;
+N      }
+N    }
+N    SEGGER_RTT_UNLOCK();
+X    ;
+N  } else {
+N    r = -1;
+N  }
+N  return r;
+N}
+N
+N/*********************************************************************
+N*
+N*       SEGGER_RTT_TerminalOut
+N*
+N*  Function description
+N*    Writes a string to the given terminal
+N*     without changing the terminal for channel 0.
+N*
+N*  Parameters
+N*    TerminalId   Index of the terminal.
+N*    s            String to be printed on the terminal.
+N*
+N*  Return value
+N*    >= 0 - Number of bytes written.
+N*     < 0 - Error.
+N*
+N*/
+Nint SEGGER_RTT_TerminalOut (char TerminalId, const char* s) {
+N  int                   Status;
+N  unsigned              FragLen;
+N  unsigned              Avail;
+N  SEGGER_RTT_BUFFER_UP* pRing;
+N  //
+N  INIT();
+X  do { if (_SEGGER_RTT . acID[0] == '\0') { _DoInit(); } } while (0);
+N  //
+N  // Validate terminal ID.
+N  //
+N  if (TerminalId < (char)sizeof(_aTerminalId)) { // We only support a certain number of channels
+N    //
+N    // Get "to-host" ring buffer.
+N    //
+N    pRing = &_SEGGER_RTT.aUp[0];
+N    //
+N    // Need to be able to change terminal, write data, change back.
+N    // Compute the fixed and variable sizes.
+N    //
+N    FragLen = strlen(s);
+N    //
+N    // How we output depends upon the mode...
+N    //
+N    SEGGER_RTT_LOCK();
+X    ;
+N    Avail = _GetAvailWriteSpace(pRing);
+N    switch (pRing->Flags & SEGGER_RTT_MODE_MASK) {
+X    switch (pRing->Flags & (3U)) {
+N    case SEGGER_RTT_MODE_NO_BLOCK_SKIP:
+X    case (0U):
+N      //
+N      // If we are in skip mode and there is no space for the whole
+N      // of this output, don't bother switching terminals at all.
+N      //
+N      if (Avail < (FragLen + 4u)) {
+N        Status = 0;
+N      } else {
+N        _PostTerminalSwitch(pRing, TerminalId);
+N        Status = (int)_WriteBlocking(pRing, s, FragLen);
+N        _PostTerminalSwitch(pRing, _ActiveTerminal);
+N      }
+N      break;
+N    case SEGGER_RTT_MODE_NO_BLOCK_TRIM:
+X    case (1U):
+N      //
+N      // If we are in trim mode and there is not enough space for everything,
+N      // trim the output but always include the terminal switch.  If no room
+N      // for terminal switch, skip that totally.
+N      //
+N      if (Avail < 4u) {
+N        Status = -1;
+N      } else {
+N        _PostTerminalSwitch(pRing, TerminalId);
+N        Status = (int)_WriteBlocking(pRing, s, (FragLen < (Avail - 4u)) ? FragLen : (Avail - 4u));
+N        _PostTerminalSwitch(pRing, _ActiveTerminal);
+N      }
+N      break;
+N    case SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL:
+X    case (2U):
+N      //
+N      // If we are in blocking mode, output everything.
+N      //
+N      _PostTerminalSwitch(pRing, TerminalId);
+N      Status = (int)_WriteBlocking(pRing, s, FragLen);
+N      _PostTerminalSwitch(pRing, _ActiveTerminal);
+N      break;
+N    default:
+N      Status = -1;
+N      break;
+N    }
+N    //
+N    // Finish up.
+N    //
+N    SEGGER_RTT_UNLOCK();
+X    ;
+N  } else {
+N    Status = -1;
+N  }
+N  return Status;
+N}
+N
+N
+N/*************************** End of file ****************************/
